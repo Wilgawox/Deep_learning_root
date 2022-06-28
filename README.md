@@ -34,6 +34,8 @@
 The project, done in the context of an internship at CIRAD, allow the user to train a model based on 2D+T image of roots growing. Those images should be TIFF images containing different slices representing each times a different period of the plant's growth. You can then use this project to train a model showing which pixels belong to a root, and which ones are background.
 <br/><br/>
 You also just use the pre-compiled models to just apply a mask on your 2D+t image in order to get a 2D image showing the growth of your root using grayscale.
+<br/><br/>
+If you need an older commit of this repository, you can consult Wilgawox/basic_Deep_cirad
 
 <!-- GETTING STARTED -->
 ## Getting Started
