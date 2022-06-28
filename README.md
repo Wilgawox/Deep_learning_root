@@ -31,7 +31,8 @@
 <!-- About the project -->
 ## About the project
 
-WIP
+The project, done in the context of an internship at CIRAD, aim to recognise roots in images. Those images are TIFF images containing 22 slices which represent 22 different times, and we need to detect which pixet belong to a root, and which one do not.
+In order to do that, we create a CNN with some data to create a model that permit us to detect the roots. We then can apply the model to any data to get the roots position.
 
 <!-- GETTING STARTED -->
 ## Getting Started
