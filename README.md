@@ -73,9 +73,8 @@ data_prep_2D.data_arborescence_setup(X, Y, data_path)
 You can also process a 2D+T image into an annotated image : 
 
 ```
-import model.h5
-
-annotated_image = predict_image(image_2Dt)
+model.load_weights('model.h5')
+annotated_image = model.predict(image_2Dt)
 ```
 
 <!-- Roadmap -->
