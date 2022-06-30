@@ -6,6 +6,7 @@ training_data_path = dataset_path+"data_training/"
 val_data_path = dataset_path+"data_validation/"
 test_data_path = dataset_path+"data_test/"
 MODEL_FILEPATH = "Data_Thibault/model.h5"
+final_data = "Data_Thibault/processed_data/"
 
 # Parameters for the tiles
 TILE_SIZE = [512,512] #[x,y] dimensions of a tile
@@ -29,3 +30,9 @@ N_CHANNELS = 1
 N_CLASSES = 2 #softmax #Root or background
 NUM_TEST_IMAGES = 0 #Calcul a faire avant execution
 #18/9/9
+
+# Test parameters for main :
+n_img = 10
+n_time = 22
+n_tile = 9
+nExp = "test_main"

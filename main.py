@@ -1,39 +1,126 @@
-import paths
+import paths # TODO : put this in a separate file with variables
 import glob
 import data_prep_3D
 import ranging_and_tiling_helpers
 import dataset_config
 import data_prep_2D
 
+import matplotlib.pyplot as plt
 from PIL import Image
+import numpy as np
+import tensorflow as tf
+import datetime
+import keras
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+import tensorflow.keras.layers as tfk 
+from keras.callbacks import *
 
 
-#I1 = Image.open("Data_Thibault\Input\ML1_Boite_00009.tif")
+'''
+TODO : Create a test for this
+
+#I1 = np.load("Data_Thibault\data\ML1_input_img0.time0.number0.npy")
 #I2 = Image.open("Data_Thibault\Results\ML1_Boite_00009.tif")
+#A = plt.plot([0,1],[0,1])
+#plt.imshow(I1)
+#plt.show()
+
 
 #X = data_prep_3D.create_Xarray(I1)
 #Y = data_prep_3D.create_Yarray(I2)
 ##plt.imshow(X[20])
-##plt.show
+##plt.show()
 ##plt.imshow(Y[20])
 #X = modif_image.raange(X[3],1,-1)
+#'''
 
 
 Inp = input("Do you want to create .npy files ? (Y/N)")
 
 if Inp == 'Y' or Inp=='y' : 
+    print('Writing X_array')
     list_X = []
-    for filename in glob(paths.training_data+'*.tif'):
+    for filename in glob.glob(paths.training_data+'*.tif'):
+        print('a')
         im=Image.open(filename)
         list_X.append(data_prep_3D.create_Xarray(im))
-
+    
+    print('Wrinting Y_array')
     list_Y = []
-    for filename in glob(paths.res_data+'*.tif'):
+    for filename in glob.glob(paths.res_data+'*.tif'):
         im=Image.open(filename)
-        list_Y.append(data_prep_3D.create_Yarray(im))
+        list_Y.append(data_prep_3D.create_Yarray_speedy(im))
+    
+    print('Writing all the data. Please check memory to allow for ~12Go data')
+    data_prep_2D.data_arborescence_setup(list_X, list_Y)
 
-data_prep_2D.data_arborescence_setup(list_Y)
+print('Data prep done (or skipped)')
+    
+# Free memory
+del(list_X)
+del(list_Y)
+print(globals())
+print(locals())
+
+# Getting the data ready to be used by the dataset (shuffled and ordered)
+X,Y = dataset_config.create_IO_for_CNN_training(paths.n_img, paths.n_time, paths.n_tile)
+X_train,Y_train,X_test,Y_test,X_valid,Y_valid=dataset_config.shuffle_XY(X, Y, paths.PERCENT_TRAIN_IMAGES, paths.PERCENT_VALID_IMAGES, paths.PERCENT_TEST_IMAGES)
+
+# Creation of the layers of the CNN
+inputs = tfk.Input(shape=(paths.IMG_W, paths.IMG_H, 1))
+convo1 = tfk.Conv2D(paths.batch_size, paths.layers, activation='sigmoid', padding='same', kernel_initializer='he_normal')(inputs)
+convo2 = tfk.Conv2D(paths.batch_size, paths.layers, activation='sigmoid', padding='same', kernel_initializer='he_normal')(convo1)
+output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo2)
+model = tf.keras.Model(inputs = inputs, outputs = output)
+
+# Setup of metrics, loss, and optimizer
+model.compile(optimizer='rmsprop',
+    loss=keras.losses.BinaryCrossentropy(),
+    metrics=['accuracy'])
+
+# Setup of filepath for logs
+log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S ")+str(paths.nExp)
+filepath = log_dir+"/model_"+str(paths.nExp)+".h5"
+
+# Other settings
+earlystopper = EarlyStopping(patience=paths.PATIENCE, verbose=1)
+
+checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, 
+                             save_best_only=True, mode='min')
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+callbacks_list = [tensorboard_callback,earlystopper, checkpoint]
+
+# Start of the training
+history = model.fit(np.array(X_train), 
+                   np.array(Y_train), 
+                   validation_split=paths.validation_split, batch_size=paths.batch_size, 
+                   epochs=paths.nb_epochs, callbacks=callbacks_list)
 
 
-dataset_config.CNN(11, 23, 10 )
-# TODO : Un modele - 1 imge : visualiser la sortie 
+# Optionnal visual test for the user to determine if the training is good or not
+Inp = input("Do you want to see the model applied to a tile without filter ? (Y/N)")
+if Inp == 'Y' or Inp=='y' : 
+    i = ranging_and_tiling_helpers.sanitised_input("Which image do you wanna see ? : ", int, 0, (paths.n_img)*(paths.n_tile)*(paths.n_time))
+    model.load_weights(filepath)
+    test = model.predict(X_test)
+    test_img_pred = test[i, :, :, 0]
+    test_image = X_test[i, :, :]
+    test_res_img = Y_test[i, :, :]
+    plt.figure(figsize=(10,10))
+
+    plt.subplot(1,3,1)
+    plt.imshow(test_image, cmap='gray')
+    plt.title('Original', fontsize=14)
+    plt.subplot(1,3,2)
+
+    plt.imshow(test_img_pred, cmap='gray')
+    plt.title('Predicted', fontsize=14)
+    
+    plt.subplot(1,3,3)
+    plt.imshow(test_res_img, cmap='gray')
+    plt.title('Result we want', fontsize=14)
+
+    plt.show()
+
+

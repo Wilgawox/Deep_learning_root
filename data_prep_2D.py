@@ -36,7 +36,7 @@ def data_arborescence_setup(list_X, list_Y) :
     for i in range(0, len(list_X)) :
         for j in range(len(list_X[i])):
             # Ranging and tiling the images
-            tilesX = ranging_and_tiling_helpers.data_range_and_tile(list_X[i][j], paths.INT_ROOT, paths.INT_BG, paths.TILE_SIZE, paths.STRIDE)
+            tilesX = ranging_and_tiling_helpers.img_tile_and_range(list_X[i][j], paths.INT_ROOT, paths.INT_BG, paths.TILE_SIZE, paths.STRIDE)
             tilesY = ranging_and_tiling_helpers.tiling(list_Y[i][j], paths.TILE_SIZE, paths.STRIDE)
             if len(tilesX)!=len(tilesY) :
                 # Check for different size tiles, which would be a big problem later on

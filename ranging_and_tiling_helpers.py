@@ -1,3 +1,4 @@
+import string
 import numpy as np
 import paths
 import statistics
@@ -115,3 +116,52 @@ def reverse_tiling(img_size, tiles, stride) :
             tile=tiles[i*ntY+j]
             final_img[x0:xf,y0:yf]=tile[a0:af,b0:bf]
     return final_img
+
+
+def sanitised_input(prompt, type_=None, min_=None, max_=None, range_=None):
+    #Fonction stolen at https://stackoverflow.com/questions/23294658/asking-the-user-for-input-until-they-give-a-valid-response
+    # Help getting an int when the user input something in main
+    if min_ is not None and max_ is not None and max_ < min_:
+        raise ValueError("min_ must be less than or equal to max_.")
+    while True:
+        ui = input(prompt)
+        if type_ is not None:
+            try:
+                ui = type_(ui)
+            except ValueError:
+                print("Input type must be {0}.".format(type_.__name__))
+                continue
+        if max_ is not None and ui > max_:
+            print("Input must be less than or equal to {0}.".format(max_))
+        elif min_ is not None and ui < min_:
+            print("Input must be greater than or equal to {0}.".format(min_))
+        elif range_ is not None and ui not in range_:
+            if isinstance(range_, range):
+                template = "Input must be between {0.start} and {0.stop}."
+                print(template.format(range_))
+            else:
+                template = "Input must be {0}."
+                if len(range_) == 1:
+                    print(template.format(*range_))
+                else:
+                    expected = " or ".join((
+                        ", ".join(str(x) for x in range_[:-1]),
+                        str(range_[-1])
+                    ))
+                    print(template.format(expected))
+        else:
+            return ui
+
+
+def filter_bank(time_sequence):
+    # Input  : a np.array( dim_X, dim_Y, dim_T) with float values indicating probability of background (values near -1) or root (values near 1)
+    # Output : a np.array( dim_X, dim_Y ) with integer values indicating for each pixel (x,y) the root apparition time from 1 to max_time, or zero if no_root
+    
+    N_times=np.shape(time_sequence)[0]
+
+    # The filter_bank is a list of signal models corresponding to apparition of a root, computed for each target time
+    filter_bank=np.array([[[[ (j*2-1) if(j<2) else (-1+2*int( i>(j-2)))  for j in range(N_times+1)] ] ] for i in range(N_times)] )  # F Y X T
+
+    # The broadcasted element-wise dotproduct sum(data-mult-bank filter) try all the filters of the bank for each pixel to estimate the likelihood 
+    # of a root apparition at each target time. Then we use argmax function to select the index of the filter which gave the highest response
+    return np.argmax(np.sum( np.multiply(time_sequence,filter_bank),axis=0),axis=2)

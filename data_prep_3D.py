@@ -23,3 +23,13 @@ def create_Yarray(img_2D) :
         Y.append(temp)
     return Y
 
+def create_Yarray_speedy(img_2D) :
+    #Create an array of the root growing as time pass
+    img_2D=np.array(img_2D)
+    Y=[]
+    for t in range(1,int(np.max(img_2D)+1)) :
+        maskA = img_2D <= t #Mask deleting the root parts in function of the time
+        maskB = img_2D != 0 #Mask oscuring the pixels with value 0
+        A = maskA*maskB
+        Y.append(A)
+    return np.array(Y)

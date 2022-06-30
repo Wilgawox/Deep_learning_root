@@ -15,9 +15,9 @@ import paths
 def create_IO_for_CNN_training(n_img, time, tile_number) :
     X = []
     Y = []
-    for i in range(n_img+1) : 
-        for t in range(time+1) :
-            for n in range(tile_number+1) :
+    for i in range(n_img) : 
+        for t in range(time) :
+            for n in range(tile_number) :
                 #if i, t et n < parametres max pour les images
                 a = np.load(paths.dataset_path+'ML1_input_img'+str(i)+'.time'+str(t)+'.number'+str(n)+'.npy')
                 b = np.load(paths.dataset_path+'ML1_result_img'+str(i)+'.time'+str(t)+'.number'+str(n)+'.npy')
@@ -44,8 +44,7 @@ def shuffle_XY(liste_X, liste_Y, percent_train, percent_valid, percent_test) :
     Y_test = Y_temp[0:(percent_test*N)//100]
     return X_train,Y_train,X_test,Y_test,X_valid,Y_valid
 
-
-
+"""
 def CNN(n_img, time, tile_number) :
     # TODO : Split this function
     # train_CNN and apply_CNN
@@ -105,3 +104,4 @@ def CNN(n_img, time, tile_number) :
     plt.subplot(1,3,3)
     plt.imshow(test_res_img, cmap='gray')
     plt.title('Result we want', fontsize=14)
+"""
