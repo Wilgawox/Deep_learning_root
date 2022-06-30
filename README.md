@@ -58,12 +58,30 @@ You can use this package using ""TODO : add Git command to write it locally""
 <!-- Usage -->
 ## Usage 
 
-WIP
+You can create a local set of training tiles in 'data_path' from your images and masks with : 
+<br/>
+```
+from Deep_learning_root import data_prep_3D as dp3
+from Deep_learning_root import data_prep_2D as dp2
+
+X = data_prep_3D.create_Xarray(path_to_images)
+Y = data_prep_3D.create_Yarray(path_to_masks)
+
+data_prep_2D.data_arborescence_setup(X, Y, data_path)
+```
+
+You can also process a 2D+T image into an annotated image : 
+
+```
+model.load_weights('model.h5')
+annotated_image = model.predict(image_2Dt)
+```
 
 <!-- Roadmap -->
 ## Roadmap
 
 27/06 : The base functionnalities are up and working<br />
+10/07 : Base commands to visualise result and lauch test are available. Some tests are online.
 15/07 : The project is efficient and can be more precise than some others methods<br />
 29/07 : End of the project<br />
 
