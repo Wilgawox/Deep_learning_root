@@ -81,6 +81,7 @@ annotated_image = model.predict(image_2Dt)
 ## Roadmap
 
 27/06 : The base functionnalities are up and working<br />
+10/07 : Base commands to visualise result and lauch test are available. Some tests are online.
 15/07 : The project is efficient and can be more precise than some others methods<br />
 29/07 : End of the project<br />
 
