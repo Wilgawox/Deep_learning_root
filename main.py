@@ -1,3 +1,5 @@
+print('START')
+
 from xml.parsers.expat import model
 import paths # TODO : put this in a separate file with variables
 import glob
@@ -6,6 +8,7 @@ import ranging_and_tiling_helpers
 import dataset_config
 import data_prep_2D
 
+import os
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
@@ -41,28 +44,28 @@ Inp = input("Do you want to create .npy files ? (Y/N)")
 
 if Inp == 'Y' or Inp=='y' : 
     print('Writing X_array')
-    list_X = []
-    for filename in glob.glob(paths.training_data+'*.tif'):
-        print('a')
-        im=Image.open(filename)
-        list_X.append(data_prep_3D.create_Xarray(im))
+    for i in range(5) :
+        list_X = []
+        for filename in glob.glob(paths.training_data+'ML1_Boite_000'+i+'*.tif'):
+            print('a')
+            im=Image.open(filename)
+            list_X.append(data_prep_3D.create_Xarray(im))
     
-    print('Wrinting Y_array')
-    list_Y = []
-    for filename in glob.glob(paths.res_data+'*.tif'):
-        im=Image.open(filename)
-        list_Y.append(data_prep_3D.create_Yarray_speedy(im))
+        print('Wrinting Y_array')
+        list_Y = []
+        for filename in glob.glob(paths.res_data+'*.tif'):
+            im=Image.open(filename)
+            list_Y.append(data_prep_3D.create_Yarray_speedy(im))
     
-    print('Writing all the data. Please check memory to allow for ~12Go data')
-    data_prep_2D.data_arborescence_setup(list_X, list_Y)
+        print('Writing all the data. Please check memory to allow for ~12Go data')
+        data_prep_2D.data_arborescence_setup(list_X, list_Y)
+        # Free memory
+        del(list_X)
+        del(list_Y)
+        print(globals())
+        print(locals())
 
 print('Data prep done (or skipped)')
-    
-# Free memory
-del(list_X)
-del(list_Y)
-print(globals())
-print(locals())
 
 # Getting the data ready to be used by the dataset (shuffled and ordered)
 X,Y = dataset_config.create_IO_for_CNN_training(paths.n_img, paths.n_time, paths.n_tile)
@@ -75,6 +78,8 @@ convo2 = tfk.Conv2D(paths.batch_size, paths.layers, activation='sigmoid', paddin
 output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo2)
 model = tf.keras.Model(inputs = inputs, outputs = output)
 
+print('model created')
+
 # Setup of metrics, loss, and optimizer
 model.compile(optimizer='rmsprop',
     loss=keras.losses.BinaryCrossentropy(),
@@ -82,6 +87,7 @@ model.compile(optimizer='rmsprop',
 
 # Setup of filepath for logs
 log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths.nExp)
+#os.system('tensorboard --logdir=' + log_dir)
 filepath = log_dir+"/model_"+str(paths.nExp)+".h5"
 
 # Other settings
@@ -91,6 +97,8 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1,
                              save_best_only=True, mode='min')
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 callbacks_list = [tensorboard_callback,earlystopper, checkpoint]
+
+print('training start')
 
 # Start of the training
 history = model.fit(np.array(X_train), 
@@ -128,6 +136,8 @@ if Inp == 'Y' or Inp=='y' :
 # Each tile will be read and the model will be applied. We then apply the filter bank and save the image
 # This part is flawed since we use all our dataset and not just list_train. Well it'll do for now
 
+os.mkdir(log_dir+'/results/')
+
 for img_num in range(paths.n_img) :
     list_time = []
     list_tiles = []
@@ -136,7 +146,7 @@ for img_num in range(paths.n_img) :
             tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
             list_tiles.append(tile)
         list_tiles = np.array(list_tiles)
-        prediction = test_model.predict(list_tiles)
+        prediction = model.predict(list_tiles)
         image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(9, 512, 512), 450)    
         list_time.append(image)
         list_tiles = []
@@ -144,4 +154,4 @@ for img_num in range(paths.n_img) :
     list_time = list_time*2-1
     list_time = ranging_and_tiling_helpers.filter_bank(list_time)
     # See for the images to be save only if the user allows it to
-    plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time, cmap='gray')
+    plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time, cmap='gray')

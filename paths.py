@@ -34,4 +34,4 @@ NUM_TEST_IMAGES = 0 #Calcul a faire avant execution
 n_img = 10 # Number of images processed by the training
 n_time = 22 # Number of time slices used in each image
 n_tile = 9 # Number of tiles processed (TODO : always set it to max)
-nExp = "test_full_main" # Name of the current experiment
+nExp = "test_tsboard" # Name of the current experiment
