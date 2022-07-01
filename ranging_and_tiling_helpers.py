@@ -8,46 +8,37 @@ def reduced_centered_range(img, intensity_bg, intensity_root) :
     #Process the img to adjust the value between the 2 intensities, and reverse the black and white
     maxx = np.amax(img)
     minn = np.amin(img)
+
+    # Apply a ranging operation to each pixel
     a = (intensity_bg-intensity_root)/(maxx-minn)
     b = intensity_bg-a*maxx
     imgCR = a*img+b
     return np.array(imgCR).astype(np.dtype('float32'))
+
 
 def average_range(img, intensity_bg, intensity_root) :
-    #Take an image to fing its max/min values, take the adjacent pixels, and then find the average value of a pixel of root/background
-    #Then it change the image to have max(img)=average_root_value/min(img)=average_min_value
-    # NOT YET TESTED
-    maxx = np.amax(img)
+    # Take an image to fing its max/min values, take the adjacent pixels, and then find the average value of a pixel of root/background
+    # Then it change the image to have max(img)=average_root_value and min(img)=average_min_value
+    
+    # Create maxx value from the first maxima of the image and find its location
+    maxx = np.max(img)
     max_loc = np.where(img == maxx)#Location of the max value
     max_loc = list(zip(max_loc[0], max_loc[1]))[0]# Tuple with location of max value
+    
+    # Create minn value from the first minima of the image and find its location
     minn = np.amin(img)
+    min_loc = np.where(img == minn)#Location of the max value
     min_loc = list(zip(min_loc[0], min_loc[1]))[0]# Tuple with location of min value
-    maxx = statistics.mean([img[max_loc[0][0]][max_loc[1][0]+1]+img[max_loc[0][0]][max_loc[0][1]-1]+img[max_loc[0][0]+1][max_loc[0][1]]+img[max_loc[0][0]-1][max_loc[0][1]]])
-    minn = statistics.mean([img[min_loc[0][0]][min_loc[1][0]+1]+img[min_loc[0][0]][min_loc[0][1]-1]+img[min_loc[0][0]+1][min_loc[0][1]]+img[min_loc[0][0]-1][min_loc[0][1]]])
+    
+    # Take the 4 nearest pixels of the maximum/minimum, and find the mean value of those
+    maxx = statistics.mean([img[max_loc[0]][max_loc[1]+1], img[max_loc[0]][max_loc[1]-1], img[max_loc[0]+1][max_loc[1]], img[max_loc[0]-1][max_loc[1]]])
+    minn = statistics.mean([img[min_loc[0]][min_loc[1]+1], img[min_loc[0]][min_loc[1]-1], img[min_loc[0]+1][min_loc[1]], img[min_loc[0]-1][min_loc[1]]])
+    
+    # Apply a ranging operation to each pixel
     a = (intensity_bg-intensity_root)/(maxx-minn)
     b = intensity_bg-a*maxx
     imgCR = a*img+b
     return np.array(imgCR).astype(np.dtype('float32'))
-
-
-
-def tiling_only_roots(img : np.array, final_size : tuple, stride) :
-    #Slice img to tiles in final_size shape, and keep only the slices that have white pixel in it, not using most of the tiles without root in them
-    # NOT YET TESTED
-    img_w, img_h = img.shape
-    tile_w, tile_h = final_size
-    tiles=[]
-    for i in np.arange(img_w, step=stride):
-        for j in np.arange(img_h, step=stride):
-            bloc = img[i:i+tile_w, j:j+tile_h]
-            if np.max(bloc)>(paths.INT_ROOT+paths.INT_BG)/2 :
-                if bloc.shape == (tile_w, tile_h):
-                    tiles.append(bloc)
-                else :
-                    bloc_w, bloc_h = bloc.shape;
-                    bloc = img[(i-(tile_w-bloc_w)):(i+tile_w), (j-(tile_h-bloc_h)):(j+tile_h)]
-                    tiles.append(bloc)
-    return tiles
 
 def tiling(img, final_size : tuple, stride) :
     #Try to slice img to tiles in final_size shape, and slide the rest to be of the same size
@@ -58,8 +49,10 @@ def tiling(img, final_size : tuple, stride) :
         for j in np.arange(img_h, step=stride):
             bloc = img[i:i+tile_w, j:j+tile_h]
             if bloc.shape == (tile_w, tile_h):
+                # When tile entierely in image
                 tiles.append(bloc)
             else :
+                # When the tile does not fit into the image
                 bloc_w, bloc_h = bloc.shape;
                 bloc = img[(i-(tile_w-bloc_w)):(i+tile_w), (j-(tile_h-bloc_h)):(j+tile_h)]
                 tiles.append(bloc)
@@ -165,3 +158,24 @@ def filter_bank(time_sequence):
     # The broadcasted element-wise dotproduct sum(data-mult-bank filter) try all the filters of the bank for each pixel to estimate the likelihood 
     # of a root apparition at each target time. Then we use argmax function to select the index of the filter which gave the highest response
     return np.argmax(np.sum( np.multiply(time_sequence,filter_bank),axis=0),axis=2)
+
+
+## Alternative fonction to tiling, to complete if needed
+
+#def tiling_only_roots(img : np.array, final_size : tuple, stride) :
+#    #Slice img to tiles in final_size shape, and keep only the slices that have white pixel in it, not using most of the tiles without root in them
+#    # NOT YET TESTED
+#    img_w, img_h = img.shape
+#    tile_w, tile_h = final_size
+#    tiles=[]
+#    for i in np.arange(img_w, step=stride):
+#        for j in np.arange(img_h, step=stride):
+#            bloc = img[i:i+tile_w, j:j+tile_h]
+#            if np.max(bloc)>(paths.INT_ROOT+paths.INT_BG)/2 :
+#                if bloc.shape == (tile_w, tile_h):
+#                    tiles.append(bloc)
+#                else :
+#                    bloc_w, bloc_h = bloc.shape;
+#                    bloc = img[(i-(tile_w-bloc_w)):(i+tile_w), (j-(tile_h-bloc_h)):(j+tile_h)]
+#                    tiles.append(bloc)
+#    return tiles

@@ -1,3 +1,4 @@
+from xml.parsers.expat import model
 import paths # TODO : put this in a separate file with variables
 import glob
 import data_prep_3D
@@ -80,7 +81,7 @@ model.compile(optimizer='rmsprop',
     metrics=['accuracy'])
 
 # Setup of filepath for logs
-log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S ")+str(paths.nExp)
+log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths.nExp)
 filepath = log_dir+"/model_"+str(paths.nExp)+".h5"
 
 # Other settings
@@ -97,7 +98,7 @@ history = model.fit(np.array(X_train),
                    validation_split=paths.validation_split, batch_size=paths.batch_size, 
                    epochs=paths.nb_epochs, callbacks=callbacks_list)
 
-
+'''
 # Optionnal visual test for the user to determine if the training is good or not
 Inp = input("Do you want to see the model applied to a tile without filter ? (Y/N)")
 if Inp == 'Y' or Inp=='y' : 
@@ -122,5 +123,28 @@ if Inp == 'Y' or Inp=='y' :
     plt.title('Result we want', fontsize=14)
 
     plt.show()
+'''
+# Each tile will be read and the model will be applied. We then apply the filter bank and save the image
+# This part is flawed since we use all our dataset and not just list_train. Well it'll do for now
 
+test_model = keras.models.load_model('logs/20220630-170521 test_main/model_test_main.h5')
 
+log_dir = 'logs/20220630-170521 test_main'
+
+for img_num in range(paths.n_img) :
+    list_time = []
+    list_tiles = []
+    for time_num in range(paths.n_time) :
+        for tile_num in range(paths.n_tile):
+            tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
+            list_tiles.append(tile)
+        list_tiles = np.array(list_tiles)
+        prediction = test_model.predict(list_tiles)
+        image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(9, 512, 512), 450)    
+        list_time.append(image)
+        list_tiles = []
+    list_time = np.array(list_time).reshape(22, 1226, 1348, 1)
+    list_time = list_time*2-1
+    list_time = ranging_and_tiling_helpers.filter_bank(list_time)
+    # See for the images to be save only if the user allows it to
+    plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time, cmap='gray')
