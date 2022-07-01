@@ -98,6 +98,7 @@ history = model.fit(np.array(X_train),
                    validation_split=paths.validation_split, batch_size=paths.batch_size, 
                    epochs=paths.nb_epochs, callbacks=callbacks_list)
 
+
 '''
 # Optionnal visual test for the user to determine if the training is good or not
 Inp = input("Do you want to see the model applied to a tile without filter ? (Y/N)")
@@ -126,10 +127,6 @@ if Inp == 'Y' or Inp=='y' :
 '''
 # Each tile will be read and the model will be applied. We then apply the filter bank and save the image
 # This part is flawed since we use all our dataset and not just list_train. Well it'll do for now
-
-test_model = keras.models.load_model('logs/20220630-170521 test_main/model_test_main.h5')
-
-log_dir = 'logs/20220630-170521 test_main'
 
 for img_num in range(paths.n_img) :
     list_time = []
