@@ -1,5 +1,7 @@
 print('START')
 
+#tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
+
 from xml.parsers.expat import model
 import paths # TODO : put this in a separate file with variables
 import glob
@@ -90,7 +92,7 @@ output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo2)
 model = tf.keras.Model(inputs = inputs, outputs = output)
 
 print('model created')
-
+Y_train = Y_train.astype(np.float16)
 # Setup of metrics, loss, and optimizer
 model.compile(optimizer='rmsprop',
     loss=keras.losses.BinaryCrossentropy(),
@@ -109,19 +111,21 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1,
                              save_best_only=True, mode='min')
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 callbacks_list = [tensorboard_callback,earlystopper, checkpoint]
-Y_train = Y_train.reshape(np.shape(Y_train)[0], np.shape(Y_train)[1], np.shape(Y_train)[2], 1)
+#Y_train = Y_train.reshape(np.shape(Y_train)[0], np.shape(Y_train)[1], np.shape(Y_train)[2], 1)
 
 print('training start')
 
 # Start of the training
-history = model.fit(np.array(X_train), 
-                   np.array(Y_train).astype(float), 
-                   #validation_split=paths.validation_split, 
-                   batch_size=paths.batch_size, 
-                   epochs=paths.nb_epochs, 
-                   callbacks=callbacks_list, 
-                   validation_data=(X_valid, Y_valid))
+model.fit(np.array(X_train), 
+               np.array(Y_train), #.astype(float), 
+               #validation_split=paths.validation_split, 
+               batch_size=paths.batch_size, 
+               epochs=paths.nb_epochs, 
+               callbacks=callbacks_list, 
+               validation_data=(X_valid, Y_valid.astype(float)))
 
+
+#model = load_model(filepath, custom_objects={'focal_loss':focal_loss})
 model = load_model(filepath)
 
 # Optionnal visual test for the user to determine if the training is good or not
@@ -166,8 +170,7 @@ for img_num in range(paths.n_img) :
             if img_num<9 :
                 tile = np.load(paths.dataset_path+'ML1_input_img0'+str(img_num+1)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
             else :
-                tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
-
+                tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num+1)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
             list_tiles.append(tile)
         list_tiles = np.array(list_tiles)
         print(np.max(list_tiles[paths.n_tile-1]))
