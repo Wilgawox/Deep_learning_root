@@ -31,9 +31,9 @@ def data_arborescence_setup_splitter(list_X, list_Y) :
 
 
 
-def data_arborescence_setup(list_X, list_Y) : 
+def data_arborescence_setup(list_X, list_Y, tens) : 
     # Save X and Y as .npy in the dataset path, tiled and ranged
-    for i in range(0, len(list_X)) :
+    for i in range(len(list_X)) :
         for j in range(len(list_X[i])):
             # Ranging and tiling the images
             tilesX = ranging_and_tiling_helpers.img_tile_and_range(list_X[i][j], paths.INT_ROOT, paths.INT_BG, paths.TILE_SIZE, paths.STRIDE)
@@ -42,5 +42,6 @@ def data_arborescence_setup(list_X, list_Y) :
                 # Check for different size tiles, which would be a big problem later on
                 raise Exception('Problem while cutting tiles', 'Different number of tiles')
             for k in range(len(tilesX)):
-                np.save((paths.dataset_path+'ML1_input_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesX[k])
-                np.save((paths.dataset_path+'ML1_result_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesY[k])
+                print((paths.dataset_path+'ML1_input_img'+str(tens)+str(i+int(tens==0))+'.time'+str(j)+'.number'+str(k)))
+                np.save((paths.dataset_path+'ML1_input_img'+str(tens)+str(i+int(tens==0))+'.time'+str(j)+'.number'+str(k)), tilesX[k])
+                np.save((paths.dataset_path+'ML1_result_img'+str(tens)+str(i+int(tens==0))+'.time'+str(j)+'.number'+str(k)), tilesY[k])

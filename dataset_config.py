@@ -1,13 +1,6 @@
 #Imports
 from glob import glob
 import numpy as np
-import tensorflow as tf
-import datetime
-import keras
-import matplotlib.pyplot as plt
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-from tensorflow.keras.optimizers import Adam
-import tensorflow.keras.layers as tfk 
 from keras.callbacks import *
 import paths
 
@@ -18,11 +11,18 @@ def create_IO_for_CNN_training(n_img, time, tile_number) :
     for i in range(n_img) : 
         for t in range(time) :
             for n in range(tile_number) :
-                #if i, t et n < parametres max pour les images
-                a = np.load(paths.dataset_path+'ML1_input_img'+str(i)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                b = np.load(paths.dataset_path+'ML1_result_img'+str(i)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                X.append(a)
-                Y.append(b)
+                if i<9 : 
+                    #if i, t et n < parametres max pour les images
+                    a = np.load(paths.dataset_path+'ML1_input_img0'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
+                    b = np.load(paths.dataset_path+'ML1_result_img0'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
+                    X.append(a)
+                    Y.append(b)
+                else : 
+                    #if i, t et n < parametres max pour les images
+                    a = np.load(paths.dataset_path+'ML1_input_img'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
+                    b = np.load(paths.dataset_path+'ML1_result_img'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
+                    X.append(a)
+                    Y.append(b)
     return X, Y
 
 

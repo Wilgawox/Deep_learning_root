@@ -8,6 +8,8 @@ import ranging_and_tiling_helpers
 import dataset_config
 import data_prep_2D
 
+print('imported local files')
+
 import os
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -15,6 +17,8 @@ import numpy as np
 import tensorflow as tf
 import datetime
 import keras
+from keras import backend as K
+from keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras.layers as tfk 
@@ -46,26 +50,33 @@ if Inp == 'Y' or Inp=='y' :
     print('Writing X_array')
     for i in range(5) :
         list_X = []
-        for filename in glob.glob(paths.training_data+'ML1_Boite_000'+i+'*.tif'):
-            print('a')
+        for filename in glob.glob(paths.training_data+'ML1_Boite_000'+str(i)+'*.tif'):
+            print(filename)
             im=Image.open(filename)
             list_X.append(data_prep_3D.create_Xarray(im))
     
-        print('Wrinting Y_array')
+        print('Writing Y_array')
         list_Y = []
         for filename in glob.glob(paths.res_data+'*.tif'):
             im=Image.open(filename)
             list_Y.append(data_prep_3D.create_Yarray_speedy(im))
     
-        print('Writing all the data. Please check memory to allow for ~12Go data')
-        data_prep_2D.data_arborescence_setup(list_X, list_Y)
+        print('Writing all the data. Please check memory to allow for ~20Go data')
+        data_prep_2D.data_arborescence_setup(list_X, list_Y, i)
         # Free memory
         del(list_X)
         del(list_Y)
-        print(globals())
-        print(locals())
+
 
 print('Data prep done (or skipped)')
+
+def focal_loss(target, output, gamma=2):
+    print(target, output)
+    output /= K.sum(output, axis=-1, keepdims=True)
+    eps = K.epsilon()
+    output = K.clip(output, eps, 1. - eps)
+    return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
+
 
 # Getting the data ready to be used by the dataset (shuffled and ordered)
 X,Y = dataset_config.create_IO_for_CNN_training(paths.n_img, paths.n_time, paths.n_tile)
@@ -83,6 +94,7 @@ print('model created')
 # Setup of metrics, loss, and optimizer
 model.compile(optimizer='rmsprop',
     loss=keras.losses.BinaryCrossentropy(),
+    #loss = focal_loss,
     metrics=['accuracy'])
 
 # Setup of filepath for logs
@@ -97,23 +109,29 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1,
                              save_best_only=True, mode='min')
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 callbacks_list = [tensorboard_callback,earlystopper, checkpoint]
+Y_train = Y_train.reshape(np.shape(Y_train)[0], np.shape(Y_train)[1], np.shape(Y_train)[2], 1)
 
 print('training start')
 
 # Start of the training
 history = model.fit(np.array(X_train), 
-                   np.array(Y_train), 
-                   validation_split=paths.validation_split, batch_size=paths.batch_size, 
-                   epochs=paths.nb_epochs, callbacks=callbacks_list)
+                   np.array(Y_train).astype(float), 
+                   #validation_split=paths.validation_split, 
+                   batch_size=paths.batch_size, 
+                   epochs=paths.nb_epochs, 
+                   callbacks=callbacks_list, 
+                   validation_data=(X_valid, Y_valid))
 
+model = load_model(filepath)
 
-'''
 # Optionnal visual test for the user to determine if the training is good or not
 Inp = input("Do you want to see the model applied to a tile without filter ? (Y/N)")
 if Inp == 'Y' or Inp=='y' : 
     i = ranging_and_tiling_helpers.sanitised_input("Which image do you wanna see ? : ", int, 0, (paths.n_img)*(paths.n_tile)*(paths.n_time))
-    model.load_weights(filepath)
-    test = model.predict(X_test)
+    #model.load_weights(filepath)
+
+    print(np.shape(X_test))
+    test = model.predict(X_test[:50, :, :])
     test_img_pred = test[i, :, :, 0]
     test_image = X_test[i, :, :]
     test_res_img = Y_test[i, :, :]
@@ -132,7 +150,9 @@ if Inp == 'Y' or Inp=='y' :
     plt.title('Result we want', fontsize=14)
 
     plt.show()
-'''
+
+    del(test, test_image, test_img_pred, test_res_img)
+
 # Each tile will be read and the model will be applied. We then apply the filter bank and save the image
 # This part is flawed since we use all our dataset and not just list_train. Well it'll do for now
 
@@ -143,15 +163,31 @@ for img_num in range(paths.n_img) :
     list_tiles = []
     for time_num in range(paths.n_time) :
         for tile_num in range(paths.n_tile):
-            tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
+            if img_num<9 :
+                tile = np.load(paths.dataset_path+'ML1_input_img0'+str(img_num+1)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
+            else :
+                tile = np.load(paths.dataset_path+'ML1_input_img'+str(img_num)+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
+
             list_tiles.append(tile)
         list_tiles = np.array(list_tiles)
+        print(np.max(list_tiles[paths.n_tile-1]))
+        #plt.imshow(list_tiles[paths.n_tile-1])
+        #plt.show()
         prediction = model.predict(list_tiles)
-        image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(9, 512, 512), 450)    
+        image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(paths.n_tile, 512, 512), 450)    
+        #plt.imshow(image)
+        #plt.show()
+
         list_time.append(image)
         list_tiles = []
-    list_time = np.array(list_time).reshape(22, 1226, 1348, 1)
+    list_time = np.array(list_time).reshape(paths.n_time, 1226, 1348, 1)
     list_time = list_time*2-1
+    print(np.max(list_time[21]))
+    print(np.min(list_time[21]))
+    #plt.imshow(list_time[21])
+    #plt.show()
     list_time = ranging_and_tiling_helpers.filter_bank(list_time)
     # See for the images to be save only if the user allows it to
+    #plt.imshow(list_time)
+    #plt.show()
     plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time, cmap='gray')
