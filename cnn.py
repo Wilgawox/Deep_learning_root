@@ -2,6 +2,7 @@ print('START')
 
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
+from pickletools import uint8
 import paths # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
 import dataset_config
@@ -96,7 +97,7 @@ def CNN(args) :
                         if(img_num<1000):strI="0"+str(img_num)
                         else:
                             strI=""+str(img_num)
-                    tile = np.load(paths.dataset_path+'ML1_input_img0'+strI+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
+            tile = np.load(paths.dataset_path+'ML1_input_img0'+strI+'.time'+str(time_num)+'.number'+str(tile_num)+'.npy')
             list_tiles.append(tile)
             list_tiles = np.array(list_tiles)
             print(np.max(list_tiles[paths.n_tile-1]))
@@ -119,7 +120,7 @@ def CNN(args) :
         # See for the images to be save only if the user allows it to
         #plt.imshow(list_time)
         #plt.show()
-        plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time, cmap='gray')
+        plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time.astype(uint8), cmap='gray', vmin=0, vmax=paths.n_time)
 
 
 if __name__ == "__main__":
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     '''    
     - Parameters needed : 
         - Weights needed
-        - JSON file with all that is currently in paths, and path of this file
+        - YML file with all that is currently in paths, and path of this file
         - Optionnal parameters : 
             - Name of experience
             - Number of images loaded
