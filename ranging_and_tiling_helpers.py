@@ -2,6 +2,9 @@ import string
 import numpy as np
 import paths
 import statistics
+import keras
+from keras import backend as K
+
 
 
 def reduced_centered_range(img, intensity_bg, intensity_root) :
@@ -42,7 +45,7 @@ def average_range(img, intensity_bg, intensity_root) :
 
 def tiling(img, final_size : tuple, stride) :
     #Try to slice img to tiles in final_size shape, and slide the rest to be of the same size
-    img_w, img_h = img.shape
+    img_w, img_h = img.shape 
     tile_w, tile_h = final_size
     tiles=[]
     for i in np.arange(img_w, step=stride):
@@ -179,3 +182,18 @@ def filter_bank(time_sequence):
 #                    bloc = img[(i-(tile_w-bloc_w)):(i+tile_w), (j-(tile_h-bloc_h)):(j+tile_h)]
 #                    tiles.append(bloc)
 #    return tiles
+
+def focal_loss(target, output, gamma=50):
+    print(target, output)
+    output /= K.sum(output, axis=-1, keepdims=True)
+    eps = K.epsilon()
+    output = K.clip(output, eps, 1. - eps)
+    return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
+
+#def weighted_categorical_crossentropy(weights):
+#    def wcce(y_true, y_pred):
+#        Kweights = K.constant(weights)
+#        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
+#        y_true = K.cast(y_true, y_pred.dtype)
+#        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
+#    return wcce

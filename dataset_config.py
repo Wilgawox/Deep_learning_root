@@ -8,21 +8,19 @@ import paths
 def create_IO_for_CNN_training(n_img, time, tile_number) :
     X = []
     Y = []
-    for i in range(n_img) : 
+    for i in range(1, n_img) : 
         for t in range(time) :
             for n in range(tile_number) :
-                if i<9 : 
-                    #if i, t et n < parametres max pour les images
-                    a = np.load(paths.dataset_path+'ML1_input_img0'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                    b = np.load(paths.dataset_path+'ML1_result_img0'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                    X.append(a)
-                    Y.append(b)
-                else : 
-                    #if i, t et n < parametres max pour les images
-                    a = np.load(paths.dataset_path+'ML1_input_img'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                    b = np.load(paths.dataset_path+'ML1_result_img'+str(i+1)+'.time'+str(t)+'.number'+str(n)+'.npy')
-                    X.append(a)
-                    Y.append(b)
+                if(i<10) : strI="000"+str(i)
+                else :
+                    if(i<100) : strI="00"+str(i)
+                    else :
+                        if(i<1000) : strI="0"+str(i)
+                        else : strI=""+str(i)
+                a = np.load(paths.dataset_path+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy')
+                b = np.load(paths.dataset_path+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy')
+                X.append(a)
+                Y.append(b)
     return X, Y
 
 
