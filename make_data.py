@@ -2,23 +2,26 @@ print('START')
 
 #python make_data.py create_files
 
-from xml.parsers.expat import model
-import paths # TODO : put this in a separate file with variables
+#import paths
 import data_prep_3D
 import data_prep_2D
 
 from PIL import Image
 import argparse
+import yaml
 
 print('Imports finished')
 
 
 def create_files(args) :
 
+    with open(args.config) as fp:
+        paths = yaml.full_load(fp)
+
     list_X = []
     list_Y = []
 
-    for i in range(1,paths.n_img+1) :
+    for i in range(1,paths['n_img']+1) :
 
         if(i<10):strI="000"+str(i)
         else:
@@ -28,11 +31,11 @@ def create_files(args) :
                 else:
                     strI=""+str(i)
         
-        filenameX=paths.training_data+'ML1_Boite_0'+strI+'.tif'
+        filenameX=paths['training_data']+'ML1_Boite_0'+strI+'.tif'
         imX=Image.open(filenameX)
         list_X.append(data_prep_3D.create_Xarray(imX))
 
-        filenameY=paths.res_data+'ML1_Boite_0'+strI+'.tif'
+        filenameY=paths['res_data']+'ML1_Boite_0'+strI+'.tif'
         imY=Image.open(filenameY)
         list_Y.append(data_prep_3D.create_Yarray_speedy(imY))
 
@@ -51,7 +54,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(title='Action')
 
     parser_cnn = subparsers.add_parser('create_files', help='Create files for X and Y in the designed folder (Folder is WIP)')
-    #parser_cnn.add_argument("--config", nargs="?", type=str, default="paths.py", help="Configuration file")
+    parser_cnn.add_argument("--config", nargs="?", type=str, default="paths.yml", help="Configuration file")
     parser_cnn.set_defaults(func=create_files)
 
     args = parser.parse_args()

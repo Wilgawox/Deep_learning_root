@@ -15,9 +15,14 @@ from keras.models import load_model
 import argparse
 
 def imsave(model, img) : 
+    with open(args.config) as fp:
+        paths = yaml.full_load(fp)
+
     imsave(img_model_applied_and_filtered)
 
 def imshow(model, img) : 
+    with open(args.config) as fp:
+        paths = yaml.full_load(fp)
     imshow(img_model_applied)
 
 
@@ -98,11 +103,11 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(title='Functions')
 
     parser_imsave = subparsers.add_parser('apply_model', help='Save the model applied to an image, after application of a filter bank')
-    #parser_imsave.add_argument("--config", nargs="?", type=str, default="paths.py", help="Configuration file")
+    parser_imsave.add_argument("--config", nargs="?", type=str, default="paths.py", help="Configuration file")
     parser_imsave.set_defaults(func=imsave)
 
     parser_imshow = subparsers.add_parser('apply_model', help='Show an image with a model applied')
-    #parser_imshow.add_argument("--config", nargs="?", type=str, default="paths.py", help="Configuration file")
+    parser_imshow.add_argument("--config", nargs="?", type=str, default="paths.py", help="Configuration file")
     parser_imshow.set_defaults(func=imshow)
 
     args = parser.parse_args()
