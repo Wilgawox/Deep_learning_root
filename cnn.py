@@ -2,6 +2,8 @@ print('START')
 
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
+#python cnn.py CNN
+
 from pickletools import uint8
 import paths # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
@@ -85,7 +87,7 @@ def CNN(args) :
 
     os.mkdir(log_dir+'/results/')
 
-    for img_num in range(paths.n_img) :
+    for img_num in range(1, paths.n_img+1) :
         list_time = []
         list_tiles = []
         for time_num in range(paths.n_time) :
