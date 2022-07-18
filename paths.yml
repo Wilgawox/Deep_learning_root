@@ -1,3 +1,8 @@
+#### Load paths.yml : 
+# with open("paths.yml", 'r') as stream:
+#     paths = yaml.safe_load(stream)
+
+
 # Data paths
 training_data : "Data_Thibault/input/"
 res_data : "Data_Thibault/results/"
@@ -10,8 +15,6 @@ final_data : "Data_Thibault/processed_data/"
 
 # Parameters for the tiles
 tile_size : [512,512] #[x,y] dimensions of a tile
-tileh : TILE_SIZE[0] # TODO : Change this variable name
-tilew : TILE_SIZE[1] # TODO : Change this variable name
 stride :  450 #Stride between two tiles in a image
 int_root : -1 #Target value of a root pixel
 int_bg : 1 #Target value of a backgroung pixel
@@ -22,10 +25,10 @@ percent_valid : 25 # Part of image for validation (%) Default : 25
 percent_test : 25 # Part of image for test (%) Default : 25
 sample_weight : 60 # Weight given for a pixel associated with a root
 patience : 10 # Nomber of unsuccessful epochs before the training stops
-n_epochs : 300 # Total number of epochs
+n_epochs : 5 # Total number of epochs
 batch_size : 10 # Batch size
 validation_split : 0.1
-n_kernels : 4
+n_kernels : 8
 n_channels : 1
 n_classes : 2 #softmax #Root or background
 ##n_test_images : 0 #Calcul a faire avant execution
@@ -34,4 +37,4 @@ n_classes : 2 #softmax #Root or background
 n_img : 10 # Number of images processed by the training
 n_time : 22 # Number of time slices used in each image
 n_tile : 9 # Number of tiles processed (TODO : always set it to max)
-nExp : "CNN_5layers" # Name of the current experiment
+nExp : "test" # Name of the current experiment

@@ -5,7 +5,8 @@ print('START')
 #python cnn.py CNN
 
 from pickletools import uint8
-import paths # TODO : put this in a separate file with variables
+from xml.dom.minidom import Document
+import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
 import dataset_config
 print('imported local files')
@@ -24,7 +25,9 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 def CNN(args) : 
+
     print('Here we go !')
+
     with open(args.config) as fp:
         paths = yaml.full_load(fp)
 
@@ -33,8 +36,6 @@ def CNN(args) :
     X_train,Y_train,X_test,Y_test,X_valid,Y_valid=dataset_config.shuffle_XY(X, Y, paths['percent_train'], paths['percent_valid'], paths['percent_test'])
     
     # Creation of the layers of the CNN
-
-    #layers -> Nb kernel par layers
 
     inputs = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
     convo1 = tfk.Conv2D(paths['n_kernels'] , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(inputs)
@@ -56,9 +57,10 @@ def CNN(args) :
                   metrics=['mae', 'accuracy'])
 
     # Setup of filepath for logs
-    log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
+    #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
+    log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.exp
     #os.system('tensorboard --logdir=' + log_dir)
-    filepath = log_dir+"/model_"+str(paths['nExp'])+".h5"
+    filepath = log_dir+"/model_"+args.exp+".h5"
 
     # Other settings
     earlystopper = EarlyStopping(patience=paths['patience'], verbose=1)
@@ -90,40 +92,38 @@ def CNN(args) :
 
     os.mkdir(log_dir+'/results/')
 
-    for img_num in range(paths['n_img']) :
+    for img_num in range(1, paths['n_img']+1) :
         list_time = []
         list_tiles = []
         for time_num in range(paths['n_time']) :
             for tile_num in range(paths['n_tile']):
-                if(img_num<10):strI="000"+str(img_num+1)
+                if(img_num<10):strI="000"+str(img_num)
                 else:
-                    if(img_num<100):strI="00"+str(img_num+1)
+                    if(img_num<100):strI="00"+str(img_num)
                     else:
-                        if(img_num<1000):strI="0"+str(img_num+1)
+                        if(img_num<1000):strI="0"+str(img_num)
                         else:
                             strI=""+str(img_num)
             tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(time_num+1)+'.number'+str(tile_num+1)+'.npy')
             list_tiles.append(tile)
-            list_tiles = np.array(list_tiles)
-            #plt.imshow(list_tiles[paths.n_tile-1])
-            #plt.show()
-            prediction = model.predict(list_tiles)
-            image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(paths.n_tile, 512, 512), 450)    
-            #plt.imshow(image)
-            #plt.show()
-            list_time.append(image)
-            list_tiles = []
-        list_time = np.array(list_time).reshape(paths['n_time'], 1226, 1348, 1)
-        list_time = list_time*2-1
-        print(np.max(list_time[21]))
-        print(np.min(list_time[21]))
-        #plt.imshow(list_time[21])
-        #plt.show()
-        list_time = ranging_and_tiling_helpers.filter_bank(list_time)
-        # See for the images to be save only if the user allows it to
-        #plt.imshow(list_time)
-        #plt.show()
-        plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time.astype(uint8), cmap='gray', vmin=0, vmax=paths['n_time'])
+
+        list_tiles = np.array(list_tiles)
+        prediction = model.predict(list_tiles)
+        image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(paths['n_tile'], 512, 512), 450)    
+        
+        list_time.append(image)
+        list_tiles = []
+    list_time = np.array(list_time).reshape(paths['n_time'], 1226, 1348, 1)
+    list_time = list_time*2-1
+    print(np.max(list_time[21]))
+    print(np.min(list_time[21]))
+    #plt.imshow(list_time[21])
+    #plt.show()
+    list_time = ranging_and_tiling_helpers.filter_bank(list_time)
+    # See for the images to be save only if the user allows it to
+    #plt.imshow(list_time)
+    #plt.show()
+    plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time.astype(uint8), cmap='gray', vmin=0, vmax=paths['n_time'])
 
 
 if __name__ == "__main__":
@@ -148,6 +148,8 @@ if __name__ == "__main__":
     parser_cnn = subparsers.add_parser('CNN', help='Compute the CNN')
     parser_cnn.add_argument("--config", nargs="?", type=str, default="paths.yml", help="Configuration file")
     parser_cnn.set_defaults(func=CNN)
+    parser_cnn.add_argument("--exp", nargs="?", type=str, default="test", help="Model name (without .h5)")
 
     args = parser.parse_args()
+if hasattr(args, 'func'):
     args.func(args)

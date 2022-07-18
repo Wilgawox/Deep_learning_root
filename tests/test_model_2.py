@@ -9,25 +9,23 @@ print(os.getcwd())
 #print(os.getcwd())
 from PIL import Image
 from keras.models import load_model
-import dataset_config
 import paths
 import ranging_and_tiling_helpers
 import data_prep_3D
 import matplotlib.pyplot as plt
 import numpy as np
 
-model = load_model('tests/model__test_intensity_bug_i30e300_bicross.h5', custom_objects={'focal_loss':ranging_and_tiling_helpers.focal_loss})
-#model = load_model('tests/current_test_model.h5')
+model = load_model("model/model_test_dataset_basic.h5", custom_objects={'focal_loss':ranging_and_tiling_helpers.focal_loss})
 
 i = ranging_and_tiling_helpers.sanitised_input("Which image do you wanna see ? : ", int, 0, (paths.n_img)*(paths.n_tile)*(paths.n_time))
 X_tile, Y_tile=[], []
-X_test = np.array(data_prep_3D.create_Xarray(Image.open('tests/input_test.tif')))
+X_test = np.array(data_prep_3D.create_Xarray(Image.open('input_test.tif')))
 for img in X_test : 
     tiles = np.array(ranging_and_tiling_helpers.tiling(img, paths.TILE_SIZE, paths.STRIDE))
     for tile in tiles : 
         X_tile.append(tile)
 X_tile = np.array(X_tile)
-Y_test = np.array(data_prep_3D.create_Yarray_speedy(Image.open('tests/output_test.tif')))
+Y_test = np.array(data_prep_3D.create_Yarray_speedy(Image.open('output_test.tif')))
 for img in Y_test : 
     tiles = np.array(ranging_and_tiling_helpers.tiling(img, paths.TILE_SIZE, paths.STRIDE))
     for tile in tiles : 
@@ -52,10 +50,18 @@ plt.subplot(1,3,2)
 
 plt.imshow(test_img_pred, cmap='gray')
 plt.title('Predicted', fontsize=14)
-plt.imsave('tests/imagetest/img1.tiff', test_img_pred, cmap='gray', vmin=-1, vmax=1)
-    
+plt.imsave('imagetest/img1.tiff', test_img_pred.astype(np.float32), cmap='gray', vmin=-1, vmax=1)
+
+print('max ', np.max(test_img_pred))
+print('min ', np.min(test_img_pred))
+
 plt.subplot(1,3,3)
 plt.imshow(test_res_img, cmap='gray')
 plt.title('Result we want', fontsize=14)
 
 plt.show()
+'''
+for time_num in range(paths.n_time) :
+        for tile_num in range(paths.n_tile):
+
+prediction = model.predict(X_tile)'''
