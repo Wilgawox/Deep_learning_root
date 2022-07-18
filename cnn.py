@@ -25,6 +25,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 def CNN(args) : 
+    # Create a dataset then use it to train it with a CNN. Then returns a model.h5 in the /logs file along with this model applied to some images.
 
     print('Here we go !')
 

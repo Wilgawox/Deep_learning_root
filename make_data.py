@@ -15,7 +15,8 @@ print('Imports finished')
 
 def create_files(args) :
     '''
-    Create
+    Create a large number of files, each one being one tile of one slice of one .TIFF root photograph.
+    Also take the annoted masks and make tiles out of them
     '''
     with open(args.config) as fp:
         paths = yaml.full_load(fp)
