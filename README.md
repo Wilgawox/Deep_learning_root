@@ -55,6 +55,16 @@ This code is also writted for windows and tested as such, so there is no guarant
 You can use this package using ""TODO : add Git command to write it locally""
 
 
+  
+## Preparing your dataset
+
+**Input data:** 
+  - 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one subdirectory per dish, with name patterning such as img_XX.tif, in order that ImageJ detect the image sequence autonomously.
+  - to fill
+
+**Output data:** (to fill)
+  
+  
 <!-- Usage -->
 ## Usage 
 
