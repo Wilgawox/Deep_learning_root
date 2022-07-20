@@ -68,25 +68,15 @@ You can use this package using ""TODO : add Git command to write it locally""
 <!-- Usage -->
 ## Usage 
 
-You can create a local set of training tiles in 'data_path' from your images and masks with : 
+Training: first, create the tiles used for training. Make your own config file by copying the template (paths.yml) into my_config.yml, then
 <br/>
 ```
-from Deep_learning_root import data_prep_3D as dp3
-from Deep_learning_root import data_prep_2D as dp2
-
-X = data_prep_3D.create_Xarray(path_to_images)
-Y = data_prep_3D.create_Yarray(path_to_masks)
-
-data_prep_2D.data_arborescence_setup(X, Y, data_path)
+python make_data.py create_files --config my_config.yml
 ```
 
-You can also process a 2D+T image into an annotated image : 
-
-```
-model.load_weights('model.h5')
-annotated_image = model.predict(image_2Dt)
-```
-
+Running a trained model  
+To fill
+  
 <!-- Roadmap -->
 ## Roadmap
 
