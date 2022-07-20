@@ -86,9 +86,9 @@ def CNN_dataset(args) :
 
     # Setup of filepath for logs
     #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
-    log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.exp
+    log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
     #os.system('tensorboard --logdir=' + log_dir)
-    filepath = log_dir+"/model_"+args.exp+".h5"
+    filepath = log_dir+"/model_"+args.name+".h5"
 
     # Other settings
     earlystopper = EarlyStopping(patience=paths['patience'], verbose=1)
@@ -117,17 +117,17 @@ def CNN_dataset(args) :
     os.mkdir(log_dir+'/results/')
 
     for img_num in range(1, paths['n_img']+1) :
+        if(img_num<10):strI="000"+str(img_num)
+        else:
+            if(img_num<100):strI="00"+str(img_num)
+            else:
+                if(img_num<1000):strI="0"+str(img_num)
+                else:
+                    strI=""+str(img_num)
         list_time = []
         list_tiles = []
         for time_num in range(paths['n_time']) :
             for tile_num in range(paths['n_tile']):
-                if(img_num<10):strI="000"+str(img_num)
-                else:
-                    if(img_num<100):strI="00"+str(img_num)
-                    else:
-                        if(img_num<1000):strI="0"+str(img_num)
-                        else:
-                            strI=""+str(img_num)
                 tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(time_num+1)+'.number'+str(tile_num+1)+'.npy')
                 list_tiles.append(tile)
 
@@ -141,7 +141,7 @@ def CNN_dataset(args) :
         list_time = list_time*2-1
         list_time = ranging_and_tiling_helpers.filter_bank(list_time)
 
-        io.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time.astype(np.uint8))#, cmap='gray', vmin=0, vmax=paths['n_time'])
+        io.imsave(log_dir+'/results/ML1_Boite_img0'+str(strI)+'.tiff',list_time.astype(np.uint8))#, cmap='gray', vmin=0, vmax=paths['n_time'])
    
 
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     parser_cnnd = subparsers.add_parser('CNN_dataset', help='Compute the CNN')
     parser_cnnd.add_argument("--config", nargs="?", type=str, default="paths.yml", help="Configuration file")
     parser_cnnd.set_defaults(func=CNN_dataset)
-    parser_cnnd.add_argument("--exp", nargs="?", type=str, default="test", help="Model name (without .h5)")
+    parser_cnnd.add_argument("--name", nargs="?", type=str, default="test", help="Model name (without .h5)")
 
     args = parser.parse_args()
 
