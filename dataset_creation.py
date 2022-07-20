@@ -81,25 +81,24 @@ def create_partition(n_img, time, tile_number) :
     X_test = []
     Y_path = {}
         
-    for i in range(n_img) : 
+    for i in range(1, n_img+1) : 
         for t in range(time) :
             for n in range(tile_number) :
-                if(i<10) : strI="000"+str(i+1)
+                if(i<10) : strI="000"+str(i)
                 else :
-                    if(i<100) : strI="00"+str(i+1)
+                    if(i<100) : strI="00"+str(i)
                     else :
-                        if(i<1000) : strI="0"+str(i+1)
-                        else : strI=""+str(i+1)
-                        
-                #a = paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
-                #b = paths['dataset_path']+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
+                        if(i<1000) : strI="0"+str(i)
+                        else : strI=""+str(i)
                 
-                path_to_x = data_path+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
-                path_to_y = data_path+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
+                path_to_x =  paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
+                path_to_y = paths['dataset_path']+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
                 
-                if (i)*tile_number*time+tile_number*t+n>=(n_img*time*tile_number)/2 : X_train.append(path_to_x) # Put paths for percentage
-                elif (i)*tile_number*time+tile_number*t+n<=(n_img*time*tile_number)/4 : X_val.append(path_to_x) # Put paths for percentage
+                if (i)*tile_number*time+tile_number*t+n>=(n_img*time*tile_number)/2 : X_train.append(path_to_x)
+                elif (i)*tile_number*time+tile_number*t+n<=(n_img*time*tile_number)/4 : X_val.append(path_to_x)
                 else : X_test.append(path_to_x)
                 Y_path.update({path_to_x : path_to_y})
+
     img_path = {'train':tuple(X_train), 'val':tuple(X_val), 'test':tuple(X_test)}
+
     return img_path, Y_path

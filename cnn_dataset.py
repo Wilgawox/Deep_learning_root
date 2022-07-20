@@ -3,7 +3,7 @@ print('START')
 
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
-#python cnn.py CNN
+#python cnn_dataset.py CNN_dataset
 
 import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
@@ -26,13 +26,6 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 def CNN_dataset(args) : 
-    # Create a dataset then use it to train it with a CNN. Then returns a model.h5 in the /logs file along with this model applied to some images.
-
-    print('Here we go !')
-
-    with open(args.config) as fp:
-        paths = yaml.full_load(fp)
-
     #############################################################
     ####### Create partition of data and data generators ########
     #############################################################
@@ -43,6 +36,14 @@ def CNN_dataset(args) :
     ###  ' <' `\ ._/'\                  ' <' `\ ._/'\         ###
     ###     `   \     \                    `   \     \        ###
     #############################################################
+    
+    print('Here we go !')
+
+    with open(args.config) as fp:
+        paths = yaml.full_load(fp)
+
+
+
     params = {'dim': (512, 512),
               'batch_size': paths['batch_size'],
               'n_channels' : 1,
@@ -74,10 +75,6 @@ def CNN_dataset(args) :
     output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo5)
     model = tf.keras.Model(inputs = inputs, outputs = output)
 
-    #weights = [1, 60]
-    print('model created')
-    Y_train = Y_train.astype(np.float16)
-
     # Creating threshold for metrics
     tr = 0.5
 
@@ -98,16 +95,14 @@ def CNN_dataset(args) :
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, 
                                  save_best_only=True, mode='min')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    callbacks_list = [tensorboard_callback,earlystopper, checkpoint]
-
+    
     print('training start')
 
     # Start of the training
-   model.fit(training_generator, 
-                  validation_data=validation_generator, 
-                  epochs=paths['n_epochs'],
-                  callbacks=[tensorboard_callback,earlystopper, checkpoint])
-
+    model.fit(training_generator, 
+              validation_data=validation_generator, 
+              epochs=paths['n_epochs'], 
+              callbacks=[tensorboard_callback,earlystopper, checkpoint])
 
     print('Test done. Model is at : ', filepath)
     
@@ -131,26 +126,27 @@ def CNN_dataset(args) :
                         if(img_num<1000):strI="0"+str(img_num)
                         else:
                             strI=""+str(img_num)
-            tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(time_num+1)+'.number'+str(tile_num+1)+'.npy')
-            list_tiles.append(tile)
+                tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(time_num+1)+'.number'+str(tile_num+1)+'.npy')
+                list_tiles.append(tile)
 
-        list_tiles = np.array(list_tiles)
-        prediction = model.predict(list_tiles)
-        image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(paths['n_tile'], 512, 512), 450)    
+            list_tiles = np.array(list_tiles)
+            prediction = model.predict(list_tiles)
+            image = ranging_and_tiling_helpers.reverse_tiling([1226, 1348], prediction.reshape(paths['n_tile'], 512, 512), 450)    
         
-        list_time.append(image)
-        list_tiles = []
-    list_time = np.array(list_time).reshape(paths['n_time'], 1226, 1348, 1)
-    list_time = list_time*2-1
-    print(np.max(list_time[21]))
-    print(np.min(list_time[21]))
-    #plt.imshow(list_time[21])
-    #plt.show()
-    list_time = ranging_and_tiling_helpers.filter_bank(list_time)
-    # See for the images to be save only if the user allows it to
-    #plt.imshow(list_time)
-    #plt.show()
-    plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num+1)+'.tiff',list_time.astype(uint8), cmap='gray', vmin=0, vmax=paths['n_time'])
+            list_time.append(image)
+            list_tiles = []
+        list_time = np.array(list_time).reshape(paths['n_time'], 1226, 1348, 1)
+        list_time = list_time*2-1
+        print(np.max(list_time[21]))
+        print(np.min(list_time[21]))
+        #plt.imshow(list_time[21])
+        #plt.show()
+        list_time = ranging_and_tiling_helpers.filter_bank(list_time)
+        # See for the images to be save only if the user allows it to
+        #plt.imshow(list_time)
+        #plt.show()
+        plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time.astype(np.uint8), cmap='gray', vmin=0, vmax=paths['n_time'])
+   
 
 
 if __name__ == "__main__":
@@ -174,9 +170,10 @@ if __name__ == "__main__":
 
     parser_cnnd = subparsers.add_parser('CNN_dataset', help='Compute the CNN')
     parser_cnnd.add_argument("--config", nargs="?", type=str, default="paths.yml", help="Configuration file")
-    parser_cnnd.set_defaults(func=CNN)
+    parser_cnnd.set_defaults(func=CNN_dataset)
     parser_cnnd.add_argument("--exp", nargs="?", type=str, default="test", help="Model name (without .h5)")
 
     args = parser.parse_args()
+
 if hasattr(args, 'func'):
     args.func(args)
