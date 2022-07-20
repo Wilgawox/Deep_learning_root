@@ -42,13 +42,15 @@ If you need an older commit of this repository, you can consult Wilgawox/basic_D
 
 ### Prerequisites
 
-You need to have a Python 3 environment, anaconda is recommended.
+Requirements:
+A Python 3 environment with python libraries:
+- tensorflow (or tensorflow-gpu if you have a gpu) with all dependancies (https://www.tensorflow.org/install). 
+- yaml
 <br/>
 If you want to train the neural network, you will need tensorflow GPU, with all dependancies (https://www.tensorflow.org/install). 
 <br/>
 Or you can install it with `pip install tensorflow`
 <br/>
-This code is also writted for windows and tested as such, so there is no guaranties for it to work outside Windows.
 
 ### Installation
 
