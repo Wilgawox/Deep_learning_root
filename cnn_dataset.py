@@ -14,6 +14,7 @@ print('imported local files')
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from skimage import io
 import tensorflow as tf
 import datetime
 import yaml
@@ -105,6 +106,7 @@ def CNN_dataset(args) :
               callbacks=[tensorboard_callback,earlystopper, checkpoint])
 
     print('Test done. Model is at : ', filepath)
+    print('Now writing result images in logs/',log_dir,'/results/')
     
     model = load_model(filepath, custom_objects={'focal_loss':ranging_and_tiling_helpers.focal_loss})
     #model = load_model(filepath)
@@ -137,15 +139,9 @@ def CNN_dataset(args) :
             list_tiles = []
         list_time = np.array(list_time).reshape(paths['n_time'], 1226, 1348, 1)
         list_time = list_time*2-1
-        print(np.max(list_time[21]))
-        print(np.min(list_time[21]))
-        #plt.imshow(list_time[21])
-        #plt.show()
         list_time = ranging_and_tiling_helpers.filter_bank(list_time)
-        # See for the images to be save only if the user allows it to
-        #plt.imshow(list_time)
-        #plt.show()
-        plt.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time.astype(np.uint8), cmap='gray', vmin=0, vmax=paths['n_time'])
+
+        io.imsave(log_dir+'/results/ML1_Boite_'+str(img_num)+'.tiff',list_time.astype(np.uint8))#, cmap='gray', vmin=0, vmax=paths['n_time'])
    
 
 
