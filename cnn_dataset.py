@@ -1,6 +1,8 @@
 
 print('START')
 
+# Dataset creation based on : https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
+
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
 #python cnn_dataset.py CNN_dataset
