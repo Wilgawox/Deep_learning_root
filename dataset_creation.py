@@ -17,14 +17,9 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 try:
-    print("chose0")
     from keras.utils.all_utils import Sequence as Seq
-    print("chose")
 except ModuleNotFoundError as err:
-    print("chose 2")
     from keras.utils import Sequence as Seq
-    
-
     pass
 
 class DataGenerator(Seq):
