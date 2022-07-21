@@ -68,6 +68,25 @@ class DataGenerator(keras.utils.all_utils.Sequence):
         for i, ID in enumerate(list_IDs_temp) :
             X[i,] = np.load(ID)
             Y[i,] = np.load(self.labels[ID]).astype(int)
+
+        list_of_non_null_tiles=[]
+        print("Here, we are making the inventory of where there is actual data")
+        nb_empty=0
+        nb_full=0
+        for i in range(len(Y)):
+            time.sleep(1)
+            su=np.sum(Y[i,])
+            if(su==0):
+                nb_empty=nb_empty+1
+            else:
+                print(100.0*su/(512.0*512.0))
+                nb_full=nb_full+1
+                list_of_non_null_tiles.append(i)
+        print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
+        print("Thus, the dict stuff thing of indexes is")
+        time.sleep(10)
+        X=X[list_of_non_null_tiles]
+        Y=Y[list_of_non_null_tiles]
         return X, Y
 
 
