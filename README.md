@@ -27,7 +27,6 @@
   </ol>
 </details>
 
-
 <!-- About the project -->
 ## About the project
 
@@ -42,16 +41,12 @@ If you need an older commit of this repository, you can consult Wilgawox/basic_D
 
 ### Prerequisites
 
-Requirements:
+**Requirements:**
 A Python 3 environment with python libraries:
-- tensorflow (or tensorflow-gpu if you have a gpu) with all dependancies (https://www.tensorflow.org/install). 
-- yaml
-- Tensorboard
-<br/>
-You can use this command to install tensorflow GPU with all dependancies or go at [tensorflow website](https://www.tensorflow.org/install) : 
-<br/>
-Or you can install it with `pip install tensorflow`
-<br/>
+- Tensorflow GPU with all dependancies  : go to [tensorflow website](https://www.tensorflow.org/install), or install with `pip install tensorflow-gpu`
+- yaml : `pip install yaml`
+- Tensorboard : `pip install tensorboard`
+- skimage : `pip install scikit-image`
 
 ### Installation
 
@@ -62,44 +57,46 @@ You can use this package using ```TODO : add Git command to write it locally```
 ## Preparing your dataset
 
 **Input data:** 
-  - 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one subdirectory per dish, with name patterning such as img_XX.tif, in order that ImageJ detect the image sequence autonomously.
-  - 
+  - 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one TIFF stacked image per dish, with name patterning such as input_img_XX.tif, in order to detect the image sequence autonomously.
 
-**Output data:** (to fill)
+**Output data:**
+  - 2D image with pixels values between 0 and your image number, showing in which image the pixel bacame considered as a root pixel (0 if the pixel never became a root pixel)
   
   
 <!-- Usage -->
 ## Usage 
 
 **Creating local files :**
+
 To create the local files you will need to execute a CNN, you will need to copy the template YAML file (paths.yml), and create a custom version, named my_config.yml, with your personnal values. Then you can go to the Deep_learning_root repository, and type : 
 <br/>
 ```
 python make_data.py create_files --config my_config.yml
 ```
 It will create a data repository in you local folder named data/ with tiles created from your 2D+t images names : "ML1_input_img0000X.timeX.numX.npy", or from the associated masks : "ML1_result_img0000X.timeX.numX.npy".
+<br/><br/>
+**Training a model :**
 
-**Training a model : **
 To create a model, you will need the same YAML file used to create the local files. You can then go to the repository and type : 
 ```
 python cnn_dataset.py CNN_dataset --config my_config.yml --name model_name
 ```
 You will then find your model_name.h5 file in your logs/ folder in the repository, along with imagesshowing that model applied to test images.
-
+<br/><br/>
 **Running a trained model :**
 You  can run the test test_model_2.py by replacing the tests/model/test_model.h5 file by your own h5 file, and then going to the /tests and typing : 
 ```
 python test_model_2
-```tests.
-The resulting image of this test will be saved in
+```
+The resulting image of this test will be saved in /tests
 
 <!-- Roadmap -->
 ## Roadmap
 
-27/06 : The base functionnalities are up and working<br />
-10/07 : Base commands to visualise result and lauch test are available. Some tests are online.
-15/07 : The project is efficient and can be more precise than some others methods<br />
-29/07 : End of the project<br />
+27/06 : The base functionnalities are up and working<br/>
+10/07 : Base commands to visualise result and lauch test are available. Some tests are online.<br/>
+15/07 : The project is efficient and can be more precise than some others methods<br/>
+29/07 : End of the project<br/>
 
 <!-- Contact -->
 ## Contact
