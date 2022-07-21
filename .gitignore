@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+##Custom configuration of the developer
+my_config.yml
+
 # Images and results
 *.tif
 *.npy
