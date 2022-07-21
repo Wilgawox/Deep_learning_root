@@ -42,41 +42,43 @@ If you need an older commit of this repository, you can consult Wilgawox/basic_D
 
 ### Prerequisites
 
-You need to have a Python 3 environment, anaconda is recommended.
+Requirements:
+A Python 3 environment with python libraries:
+- tensorflow (or tensorflow-gpu if you have a gpu) with all dependancies (https://www.tensorflow.org/install). 
+- yaml
 <br/>
 If you want to train the neural network, you will need tensorflow GPU, with all dependancies (https://www.tensorflow.org/install). 
 <br/>
 Or you can install it with `pip install tensorflow`
 <br/>
-This code is also writted for windows and tested as such, so there is no guaranties for it to work outside Windows.
 
 ### Installation
 
 You can use this package using ""TODO : add Git command to write it locally""
 
 
+  
+## Preparing your dataset
+
+**Input data:** 
+  - 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one subdirectory per dish, with name patterning such as img_XX.tif, in order that ImageJ detect the image sequence autonomously.
+  - to fill
+
+**Output data:** (to fill)
+  
+  
 <!-- Usage -->
 ## Usage 
 
-You can create a local set of training tiles in 'data_path' from your images and masks with : 
+Training: first, create the tiles used for training. Make your own config file by copying the template (paths.yml) into my_config.yml, then
 <br/>
 ```
-from Deep_learning_root import data_prep_3D as dp3
-from Deep_learning_root import data_prep_2D as dp2
-
-X = data_prep_3D.create_Xarray(path_to_images)
-Y = data_prep_3D.create_Yarray(path_to_masks)
-
-data_prep_2D.data_arborescence_setup(X, Y, data_path)
+python make_data.py create_files --config my_config.yml
 ```
 
-You can also process a 2D+T image into an annotated image : 
-
-```
-model.load_weights('model.h5')
-annotated_image = model.predict(image_2Dt)
-```
-
+Running a trained model  
+To fill
+  
 <!-- Roadmap -->
 ## Roadmap
 
