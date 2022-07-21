@@ -11,13 +11,24 @@ from keras.models import Sequential
 import argparse
 from keras.callbacks import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-
 # Load paths.yml, need to change this to accept the user's YAML file if given
 #with open("paths.yml", 'r') as stream:
 #    paths = yaml.safe_load(stream)
 
 
-class DataGenerator(keras.utils.all_utils.Sequence):
+try:
+    print("chose0")
+    from keras.utils.all_utils import Sequence as Seq
+    print("chose")
+except ModuleNotFoundError as err:
+    print("chose 2")
+    from keras.utils import Sequence as Seq
+    
+
+    pass
+
+class DataGenerator(Seq):
+#class DataGenerator(keras.utils.all_utils.Sequence):
     '''
     Class for creating keras dataset.
     '''
