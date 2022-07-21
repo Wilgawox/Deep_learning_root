@@ -54,34 +54,43 @@ You can use this package using ```TODO : add Git command to write it locally```
 
 
   
-## Preparing your dataset
+## Preparing your training data
+In order to train a network, you will need both input data, and the corresponding output data:
+  
+- Input data: 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one TIFF stacked image per dish, with name patterning such as input_img_XX.tif, in order to detect the image sequence autonomously.
 
-**Input data:** 
-  - 2D + t image sequence acquired with an imaging automaton presenting a growing root system in a petri dish. Data should be organized in an input directory, one TIFF stacked image per dish, with name patterning such as input_img_XX.tif, in order to detect the image sequence autonomously.
-
-**Output data:**
-  - 2D image with pixels values between 0 and your image number, showing in which image the pixel bacame considered as a root pixel (0 if the pixel never became a root pixel)
+- Output data: 2D image with pixels values between 0 and your image number, showing in which image the pixel bacame considered as a root pixel (0 if the pixel never became a root pixel)
   
   
 <!-- Usage -->
-## Usage 
+This package can be used both to train a network to your data, or to apply a trained model to new data
+  
+##Training a model :
 
 **Creating local files :**
 
-To create the local files you will need to execute a CNN, you will need to copy the template YAML file (paths.yml), and create a custom version, named my_config.yml, with your personnal values. Then you can go to the Deep_learning_root repository, and type : 
+The first step to training the network is to export your dataset as a training set composed of tiles with even sizes (512x512x1). To that end:
+- Copy the template YAML file (paths.yml), and create a custom version, named my_config.yml, with your personnal values. 
+- Go to the Deep_learning_root repository, and type : 
 <br/>
 ```
 python make_data.py create_files --config my_config.yml
 ```
-It will create a data repository in you local folder named data/ with tiles created from your 2D+t images names : "ML1_input_img0000X.timeX.numX.npy", or from the associated masks : "ML1_result_img0000X.timeX.numX.npy".
+It will create a data folder in you local folder named data/ . This data folder will contain the network input, along with the corresponding expected output:
+- "ML1_input_img0000{*}.time{*}.num{*}.npy"
+- "ML1_result_img0000{*}.time{*}.num{*}.npy"
 <br/><br/>
-**Training a model :**
+  
+  
+**Training the model :**
 
-To create a model, you will need the same YAML file used to create the local files. You can then go to the repository and type : 
+To train the model with your prepared data, run:
 ```
 python cnn_dataset.py CNN_dataset --config my_config.yml --name model_name
 ```
-You will then find your model_name.h5 file in your logs/ folder in the repository, along with imagesshowing that model applied to test images.
+You can expect a training time of approximately 1 min. for 250 images of 512 x 512 (multiply it to estimate your running time)
+After training, the trained model can be found in your logs/ folder in the repository, with name  model_name.h5, along with the prediction results on your images dataset.
+  
 <br/><br/>
 **Running a trained model :**
 You  can run the test test_model_2.py by replacing the tests/model/test_model.h5 file by your own h5 file, and then going to the /tests and typing : 
@@ -95,7 +104,7 @@ The resulting image of this test will be saved in /tests
 
 27/06 : The base functionnalities are up and working<br/>
 10/07 : Base commands to visualise result and lauch test are available. Some tests are online.<br/>
-15/07 : The project is efficient and can be more precise than some others methods<br/>
+15/07 : The project is efficient and could be more precise than some others methods<br/>
 29/07 : End of the project<br/>
 
 <!-- Contact -->
