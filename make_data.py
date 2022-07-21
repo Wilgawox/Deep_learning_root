@@ -33,7 +33,6 @@ def create_files(args) :
                 if(i<1000):strI="0"+str(i)
                 else:
                     strI=""+str(i)
-        
         filenameX=paths['training_data']+'ML1_Boite_0'+strI+'.tif'
         imX=Image.open(filenameX)
         list_X.append(data_prep_3D.create_Xarray(imX))
@@ -43,7 +42,7 @@ def create_files(args) :
         list_Y.append(data_prep_3D.create_Yarray_speedy(imY))
 
     #print(list_X, list_Y)
-    data_prep_2D.data_arborescence_setup(list_X, list_Y)
+    data_prep_2D.data_arborescence_setup(list_X, list_Y,paths)
     # Free memory
     del(list_X)
     del(list_Y)

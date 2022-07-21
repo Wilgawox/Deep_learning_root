@@ -13,21 +13,20 @@ from keras.callbacks import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 # Load paths.yml, need to change this to accept the user's YAML file if given
-with open("paths.yml", 'r') as stream:
-    paths = yaml.safe_load(stream)
+#with open("paths.yml", 'r') as stream:
+#    paths = yaml.safe_load(stream)
 
 
-class DataGenerator(keras.utils.Sequence):
+class DataGenerator(keras.utils.all_utils.Sequence):
     '''
     Class for creating keras dataset.
     '''
 
     'Generates data for Keras'
-    def __init__(self, list_IDs, labels, batch_size=paths['batch_size'], dim=(512, 512), n_channels = 1, 
-                 n_classes=2, shuffle=False):
-        'Initialization'
+    def __init__(self, list_IDs, labels, batch_size=16, dim=(512, 512), n_channels = 1, 
+                 n_classes=2, shuffle=False,paths="paths.yml"):
         self.dim = dim
-        self.batch_size = batch_size
+        self.batch_size =batch_size
         self.labels = labels
         self.list_IDs = list_IDs
         self.n_channels = n_channels
@@ -72,7 +71,7 @@ class DataGenerator(keras.utils.Sequence):
         return X, Y
 
 
-def create_partition(n_img, time, tile_number) :
+def create_partition(n_img, time, tile_number,paths) :
     '''
     Generate dictionnaries containing the paths of the images stocked locally
     '''
