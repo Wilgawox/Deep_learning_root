@@ -31,6 +31,10 @@ validation_split : 0.1
 n_kernels : 8
 n_channels : 1
 n_classes : 2 #softmax #Root or background
+learning_rate : 0.001
+kernel_initializer : 'he_normal'
+kernel_size : [3, 3]
+
 ##n_test_images : 0 #Calcul a faire avant execution
 
 # Test parameters for main :

@@ -5,7 +5,7 @@ print('START')
 
 #python cnn_dataset.py CNN_dataset
 
-import paths as p # TODO : put this in a separate file with variables
+#import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
 import dataset_config
 import dataset_creation
@@ -38,6 +38,15 @@ def CNN_dataset(args) :
     ###     `   \     \                    `   \     \        ###
     #############################################################
     
+    ##          __     __
+    ##         /  \~~~/  \
+    ##   ,----(     ..    )  
+    ##  /      \__     __/
+    ## /| DAVE    (\  |(
+    ##^ \   /___\  /\ |   
+    ##   |__|   |__|-"
+    ##
+
     print('Here we go !')
 
     with open(args.config) as fp:
@@ -49,12 +58,13 @@ def CNN_dataset(args) :
               'batch_size': paths['batch_size'],
               'n_channels' : 1,
               'n_classes': 2,
-              'shuffle': False}
+              'shuffle': False,
+              'paths':paths}
 
     print('Model generation')
 
     # Datasets
-    path_to_X, path_to_Y = dataset_creation.create_partition(paths['n_img'], paths['n_time'], paths['n_tile'])
+    path_to_X, path_to_Y = dataset_creation.create_partition(paths['n_img'], paths['n_time'], paths['n_tile'],paths)
     partition =  path_to_X # IDs
     results =  path_to_Y # Labels
 
@@ -68,18 +78,18 @@ def CNN_dataset(args) :
     # Creation of the layers of the CNN
 
     inputs = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
-    convo1 = tfk.Conv2D(paths['n_kernels'] , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(inputs)
-    convo2 = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(convo1) 
-    convo3 = tfk.Conv2D(paths['n_kernels']*2*2 , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(convo2)
-    convo4 = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(convo3) 
-    convo5 = tfk.Conv2D(paths['n_kernels'] , kernel_size=[3, 3], activation='sigmoid', padding='same', kernel_initializer='he_normal')(convo4)
-    output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo5)
+    convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(inputs)
+    convo = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo) 
+    convo = tfk.Conv2D(paths['n_kernels']*2*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
+    convo = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo) 
+    convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
+    output = tfk.Conv2D(1, 1, activation = 'sigmoid')(convo)
     model = tf.keras.Model(inputs = inputs, outputs = output)
 
     # Creating threshold for metrics
     tr = 0.5
 
-    model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001),
+    model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
                       loss='binary_crossentropy',
                       #loss = ranging_and_tiling_helpers.focal_loss,
                       metrics=[tf.keras.metrics.Precision(thresholds=tr), tf.keras.metrics.Recall(thresholds=tr), 'mae', 'accuracy'])
