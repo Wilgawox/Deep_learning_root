@@ -56,11 +56,11 @@ def CNN_dataset(args) :
 
 
 
-    params = {'dim': (512, 512),
+    params = {'dim': paths['tile_size'],
               'batch_size': paths['batch_size'],
-              'n_channels' : 1,
-              'n_classes': 2,
-              'shuffle': False,
+              'n_channels' : paths['n_channels'],
+              'n_classes': paths['n_classes'],
+              'shuffle': True,
               'paths':paths}
 
     print('Model generation')
