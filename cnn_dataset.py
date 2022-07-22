@@ -98,8 +98,12 @@ def CNN_dataset(args) :
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
                       loss='binary_crossentropy',
                       #loss = ranging_and_tiling_helpers.focal_loss,
-                      metrics=[ tf.keras.metrics.TruePositives(thresholds=tr), tf.keras.metrics.FalsePositives(thresholds=tr),
-                        tf.keras.metrics.Precision(thresholds=tr), tf.keras.metrics.Recall(thresholds=tr), 'mae', 'accuracy'])
+                      metrics=[ tf.keras.metrics.TruePositives(thresholds=tr), 
+                               tf.keras.metrics.FalsePositives(thresholds=tr), 
+                               tf.keras.metrics.Precision(thresholds=tr), 
+                               tf.keras.metrics.Recall(thresholds=tr), 
+                               'mae', 
+                               'accuracy'])
 
     # Setup of filepath for logs
     #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
@@ -191,8 +195,9 @@ if __name__ == "__main__":
 if hasattr(args, 'func'):
     args.func(args)
 
-
-
+# Message d'erreur
+    #############################################################
+    ###                                                       ###
     ###      __.--**"""**--...__..--**""""*-.                 ### 
     ###    .'                                `-.              ###
     ###  .'                         _           \             ###
@@ -211,3 +216,4 @@ if hasattr(args, 'func'):
     ###   \  \ ,  \              :   `.   :  \ \   .'         ###
     ###    :  *:   ;             :    |`*-'   `*+-*           ###
     ###    `**-*`""               *---*                       ###
+    #############################################################

@@ -73,8 +73,8 @@ class DataGenerator(Seq):
                 #print(100.0*su/(512.0*512.0))
                 nb_full=nb_full+1
                 list_of_non_null_tiles.append(i)
-#        print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
-#        print("Thus, the dict stuff thing of indexes is")
+        print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
+        print("Thus, the dict stuff thing of indexes is")
         X=X[list_of_non_null_tiles]
         Y=Y[list_of_non_null_tiles]
         return X, Y
