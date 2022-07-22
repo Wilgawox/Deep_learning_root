@@ -11,13 +11,19 @@ from keras.models import Sequential
 import argparse
 from keras.callbacks import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-
 # Load paths.yml, need to change this to accept the user's YAML file if given
 #with open("paths.yml", 'r') as stream:
 #    paths = yaml.safe_load(stream)
 
 
-class DataGenerator(keras.utils.all_utils.Sequence):
+try:
+    from keras.utils.all_utils import Sequence as Seq
+except ModuleNotFoundError as err:
+    from keras.utils import Sequence as Seq
+    pass
+
+class DataGenerator(Seq):
+#class DataGenerator(keras.utils.all_utils.Sequence):
     '''
     Class for creating keras dataset.
     '''
@@ -68,6 +74,23 @@ class DataGenerator(keras.utils.all_utils.Sequence):
         for i, ID in enumerate(list_IDs_temp) :
             X[i,] = np.load(ID)
             Y[i,] = np.load(self.labels[ID]).astype(int)
+
+        list_of_non_null_tiles=[]
+        #print("Here, we are making the inventory of where there is actual data")
+        nb_empty=0
+        nb_full=0
+        for i in range(len(Y)):
+            su=np.sum(Y[i,])
+            if(su==0):
+                nb_empty=nb_empty+1
+            else:
+                #print(100.0*su/(512.0*512.0))
+                nb_full=nb_full+1
+                list_of_non_null_tiles.append(i)
+#        print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
+#        print("Thus, the dict stuff thing of indexes is")
+        X=X[list_of_non_null_tiles]
+        Y=Y[list_of_non_null_tiles]
         return X, Y
 
 

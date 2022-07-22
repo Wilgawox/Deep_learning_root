@@ -94,7 +94,8 @@ def CNN_dataset(args) :
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
                       loss='binary_crossentropy',
                       #loss = ranging_and_tiling_helpers.focal_loss,
-                      metrics=[tf.keras.metrics.Precision(thresholds=tr), tf.keras.metrics.Recall(thresholds=tr), 'mae', 'accuracy'])
+                      metrics=[ tf.keras.metrics.TruePositives(thresholds=tr), tf.keras.metrics.FalsePositives(thresholds=tr),
+                        tf.keras.metrics.Precision(thresholds=tr), tf.keras.metrics.Recall(thresholds=tr), 'mae', 'accuracy'])
 
     # Setup of filepath for logs
     #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
