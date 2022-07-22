@@ -26,13 +26,13 @@ percent_valid : 25 # Part of image for validation (%) Default : 25
 percent_test : 25 # Part of image for test (%) Default : 25
 sample_weight : 60 # Weight given for a pixel associated with a root
 patience : 10 # Nomber of unsuccessful epochs before the training stops
-n_epochs : 1 # Total number of epochs
+n_epochs : 30 # Total number of epochs
 batch_size : 16 # Batch size
 validation_split : 0.1
 n_kernels : 8
 n_channels : 1
 n_classes : 2 #softmax #Root or background
-learning_rate : 0.001
+learning_rate : 0.01
 kernel_initializer : 'he_normal'
 kernel_size : [3, 3]
 

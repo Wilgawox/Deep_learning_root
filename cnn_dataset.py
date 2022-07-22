@@ -5,7 +5,7 @@ print('START')
 
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
-#python cnn_dataset.py CNN_dataset
+#python cnn_dataset.py CNN_dataset --name OwO
 
 from numpy.random import seed
 seed(1)
@@ -14,7 +14,7 @@ tf.random.set_seed(1)
 
 #import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
-import dataset_config
+import custom_metrics_and_losses
 import dataset_creation
 print('imported local files')
 
@@ -25,7 +25,6 @@ from skimage import io
 import datetime
 import yaml
 import tensorflow.keras.layers as tfk
-import tensorflow.keras.backend as K
 from tensorflow.keras.models import Sequential
 #from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
@@ -33,57 +32,7 @@ import argparse
 from tensorflow.keras.callbacks import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
-#En entrée, de -inf a + inf
-#En sortie, is lower ? 0 : 1 
-def apply_threshold(y_pred):
-    return K.round(y_pred)
 
-def my_tp(y_true, y_pred):
-    return K.sum(K.round(y_true * apply_threshold(y_pred)))
-
-def my_tn(y_true, y_pred):
-    return K.sum(K.cast(K.equal(K.round(y_true + apply_threshold(y_pred)), 0), K.floatx()))
-
-def my_fp(y_true, y_pred):
-    return K.sum(K.cast(K.equal(K.round(apply_threshold(y_pred)) - y_true, 1), K.floatx()))
-
-def my_fn(y_true, y_pred):
-    return K.sum(K.cast(K.equal(y_true - K.round(apply_threshold(y_pred)), 1), K.floatx()))
-
-def my_pos(y_true, y_pred):
-    return K.sum(K.round(y_true))
-
-def my_neg(y_true, y_pred):
-    return K.sum(K.round(1-y_true))
-
-def my_precision(y_true, y_pred):
-    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fp(y_true, y_pred))
-
-def my_recall(y_true, y_pred):
-    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fn(y_true, y_pred))
-
-def my_precision2(y_true, y_pred):
-    return (K.sum(K.round(y_true * apply_threshold(y_pred)))) / (  (K.sum(K.round(y_true * apply_threshold(y_pred)))) + (K.sum(K.cast(K.equal(K.round(apply_threshold(y_pred)) - y_true, 1), K.floatx()))))
-
-def my_recall2(y_true, y_pred):
-    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fn(y_true, y_pred))
-
-
-
-
-def my_loss(y_true, y_pred, sample_weight=[1,1]):
-    bce = tf.keras.losses.BinaryCrossentropy(from_logits=False)
-    print(y_true)
-#    return bce(y_true, y_pred)
-    output=tf.convert_to_tensor(y_pred)
-    epsilon_=tf.constant(K.epsilon(), output.dtype.base_dtype)
-    output = tf.clip_by_value(output, epsilon_, 1. - epsilon_)
-
-    # Compute cross entropy from probabilities.
-    target=tf.convert_to_tensor(y_true)
-    bce = K.cast(sample_weight[1],K.floatx()) * K.cast(tf.math.log(output + K.epsilon()),K.floatx())
-    bce += K.cast(sample_weight[0],K.floatx()) * K.cast(1 - target,K.floatx()) * K.cast(tf.math.log(1 - output + K.epsilon()),K.floatx())
-    return -bce
 
 def CNN_dataset(args) : 
     #############################################################
@@ -145,16 +94,18 @@ def CNN_dataset(args) :
     outputs = tfk.Conv2D(1, kernel_size=paths['kernel_size'], padding='same',activation = 'sigmoid')(convo)
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
 
-    # Creating threshold for metrics
-    tr = 0.5
-
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
-                      loss=my_loss,#'binary_crossentropy',
-                      #loss = ranging_and_tiling_helpers.focal_loss,
-                      metrics=[ my_tp,my_fp,my_fn,my_tn,my_precision2,my_recall,tf.keras.metrics.TruePositives(thresholds=tr), 
-                               
-                               'mae', 
-                               'accuracy'])
+                    #loss='binary_crossentropy',
+                    #loss = ranging_and_tiling_helpers.focal_loss,
+                    loss = custom_metrics_and_losses.bce_custom,
+                    metrics=[ custom_metrics_and_losses.tp_custom,
+                            custom_metrics_and_losses.tn_custom,
+                            custom_metrics_and_losses.fp_custom,
+                            custom_metrics_and_losses.fn_custom,
+                            custom_metrics_and_losses.recall_custom,
+                            custom_metrics_and_losses.precision_custom,
+                            'mae', 
+                            'accuracy'])
 
     # Setup of filepath for logs
     #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
@@ -171,28 +122,27 @@ def CNN_dataset(args) :
     
     print('training start')
 
-    if(False):
-        X_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_input_img00001.time1.number1.npy")
-        Y_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_result_img00001.time1.number1.npy")
-        X = np.empty((10, 512,512), dtype=float)
-        Y = np.empty((10,512,512 ), dtype=int)
 
-        for i in range(10):
-            X[i,] = X_train
-            Y[i,] = Y_train
+    #X_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_input_img00001.time1.number1.npy")
+    #Y_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_result_img00001.time1.number1.npy")
+    #X = np.empty((10, 512,512), dtype=float)
+    #Y = np.empty((10,512,512 ), dtype=int)
+
+    #for i in range(10):
+    #    X[i,] = X_train
+    #    Y[i,] = Y_train
         
-        # Start of the training
-        model.fit(X,Y, validation_split=0.33,
-                epochs=paths['n_epochs'], 
-                callbacks=[tensorboard_callback,earlystopper, checkpoint])
+    ## Start of the training
+    #model.fit(X,Y, validation_split=0.33,
+    #        epochs=paths['n_epochs'], 
+    #        callbacks=[tensorboard_callback,earlystopper, checkpoint])
 
 
-    if(True):
-        # Start of the training
-        model.fit_generator(training_generator, 
-                validation_data=validation_generator, 
-                epochs=paths['n_epochs'], 
-                callbacks=[tensorboard_callback,earlystopper, checkpoint])
+    # Start of the training
+    model.fit_generator(training_generator, 
+            validation_data=validation_generator, 
+            epochs=paths['n_epochs'], 
+            callbacks=[tensorboard_callback,earlystopper, checkpoint])
 
     print('Test done. Model is at : ', filepath)
     print('Now writing result images in logs/',log_dir,'/results/')
@@ -264,24 +214,24 @@ if hasattr(args, 'func'):
     args.func(args)
 
 # Message d'erreur
-    #############################################################
-    ###                                                       ###
-    ###      __.--**"""**--...__..--**""""*-.                 ### 
-    ###    .'                                `-.              ###
-    ###  .'                         _           \             ###
-    ### /                         .'        .    \   _._      ###
-    ###:          Gros Louis      :          :`*.  :-'.' ;    ###
-    ###;    `                    ;          `.) \   /.-'      ###
-    ###:     `                             ; ' -*   ;         ###
-    ###       :.    \           :       :  :        :         ###
-    ### ;     ; `.   `.         ;     ` |  '                  ###
-    ### |         `.            `. -*"*\; /        :          ###
-    ### |    :     /`-.           `.    \/`.'  _    `.        ###
-    ### :    ;    :    `*-.__.-*""":`.   \ ;  'o` `. /        ###
-    ###       ;   ;                ;  \   ;:       ;:   ,/    ###
-    ###  |  | |                       /`  | ,      `*-*'/     ###
-    ###  `  : :  :                /  /    | : .    ._.-'      ###
-    ###   \  \ ,  \              :   `.   :  \ \   .'         ###
-    ###    :  *:   ;             :    |`*-'   `*+-*           ###
-    ###    `**-*`""               *---*                       ###
-    #############################################################
+    ##############################################################
+    ###                                                        ###
+    ###       __.--**"""**--...__..--**""""*-.                 ### 
+    ###     .'                                `-.              ###
+    ###   .'                         _           \             ###
+    ###  /                         .'        .    \   _._      ###
+    ### :          Gros Louis      :          :`*.  :-'.' ;    ###
+    ### ;    `                    ;          `.) \   /.-'      ###
+    ### :     `                             ; ' -*   ;         ###
+    ###        :.    \           :       :  :        :         ###
+    ###  ;     ; `.   `.         ;     ` |  '                  ###
+    ###  |         `.            `. -*"*\; /        :          ###
+    ###  |    :     /`-.           `.    \/`.'  _    `.        ###
+    ###  :    ;    :    `*-.__.-*""":`.   \ ;  'o` `. /        ###
+    ###        ;   ;                ;  \   ;:       ;:   ,/    ###
+    ###   |  | |                       /`  | ,      `*-*'/     ###
+    ###   `  : :  :                /  /    | : .    ._.-'      ###
+    ###    \  \ ,  \              :   `.   :  \ \   .'         ###
+    ###     :  *:   ;             :    |`*-'   `*+-*           ###
+    ###     `**-*`""               *---*                       ###
+    ##############################################################
