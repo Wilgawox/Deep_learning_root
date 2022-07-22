@@ -1,26 +1,13 @@
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
-import datetime
-import keras
-import yaml
 import tensorflow.keras.layers as tfk 
-from keras.models import load_model
-from keras.models import Sequential
-import argparse
 from keras.callbacks import *
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-# Load paths.yml, need to change this to accept the user's YAML file if given
-#with open("paths.yml", 'r') as stream:
-#    paths = yaml.safe_load(stream)
-
 
 try:
     from keras.utils.all_utils import Sequence as Seq
 except ModuleNotFoundError as err:
     from keras.utils import Sequence as Seq
     pass
+
 
 class DataGenerator(Seq):
 #class DataGenerator(keras.utils.all_utils.Sequence):
