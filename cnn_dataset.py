@@ -7,6 +7,11 @@ print('START')
 
 #python cnn_dataset.py CNN_dataset
 
+from numpy.random import seed
+seed(1)
+import tensorflow as tf
+tf.random.set_seed(1)
+
 #import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
 import dataset_config
@@ -17,7 +22,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
-import tensorflow as tf
 import datetime
 import yaml
 import tensorflow.keras.layers as tfk
@@ -46,7 +50,8 @@ def CNN_dataset(args) :
     ### /| DAVE    (\  |(           '---''(_/--'  `-'\_)      ###
     ###^ \   /___\  /\ |                                      ###
     ###   |__|   |__|-"                                       ###
-    #############################################################
+    #############################################################                                                   
+
 
     print('Here we go !')
 
@@ -185,3 +190,24 @@ if __name__ == "__main__":
 
 if hasattr(args, 'func'):
     args.func(args)
+
+
+
+    ###      __.--**"""**--...__..--**""""*-.                 ### 
+    ###    .'                                `-.              ###
+    ###  .'                         _           \             ###
+    ### /                         .'        .    \   _._      ###
+    ###:          Gros Louis      :          :`*.  :-'.' ;    ###
+    ###;    `                    ;          `.) \   /.-'      ###
+    ###:     `                             ; ' -*   ;         ###
+    ###       :.    \           :       :  :        :         ###
+    ### ;     ; `.   `.         ;     ` |  '                  ###
+    ### |         `.            `. -*"*\; /        :          ###
+    ### |    :     /`-.           `.    \/`.'  _    `.        ###
+    ### :    ;    :    `*-.__.-*""":`.   \ ;  'o` `. /        ###
+    ###       ;   ;                ;  \   ;:       ;:   ,/    ###
+    ###  |  | |                       /`  | ,      `*-*'/     ###
+    ###  `  : :  :                /  /    | : .    ._.-'      ###
+    ###   \  \ ,  \              :   `.   :  \ \   .'         ###
+    ###    :  *:   ;             :    |`*-'   `*+-*           ###
+    ###    `**-*`""               *---*                       ###

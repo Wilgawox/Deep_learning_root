@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow.keras.layers as tfk 
 from keras.callbacks import *
-
+import matplotlib.pyplot as plt
 try:
     from keras.utils.all_utils import Sequence as Seq
 except ModuleNotFoundError as err:
@@ -63,7 +63,6 @@ class DataGenerator(Seq):
             Y[i,] = np.load(self.labels[ID]).astype(int)
 
         list_of_non_null_tiles=[]
-        #print("Here, we are making the inventory of where there is actual data")
         nb_empty=0
         nb_full=0
         for i in range(len(Y)):
