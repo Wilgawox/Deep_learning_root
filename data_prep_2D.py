@@ -33,7 +33,7 @@ def data_arborescence_setup_splitter(list_X, list_Y,paths) :
 
 def data_arborescence_setup(list_X, list_Y,paths) : 
     # Save X and Y as .npy in the dataset path, tiled and ranged
-    os.mkdir(paths['dataset_path'])
+    if(not os.path.exists(paths['dataset_path'])) : os.mkdir(paths['dataset_path'])
     for i in range(1, len(list_X)+1) :
         print(i)
         for j in range(1, len(list_X[i-1])+1):
