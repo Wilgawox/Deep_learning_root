@@ -1,13 +1,29 @@
 import numpy as np
 import tensorflow.keras.layers as tfk 
-from keras.callbacks import *
+from tensorflow.keras.callbacks import *
 import matplotlib.pyplot as plt
 try:
-    from keras.utils.all_utils import Sequence as Seq
+    from tensorflow.keras.utils.all_utils import Sequence as Seq
 except ModuleNotFoundError as err:
-    from keras.utils import Sequence as Seq
+    from tensorflow.keras.utils import Sequence as Seq
     pass
 
+
+def get_the_data(labels,list_ID):
+    indexes = np.arange(100) 
+    indexes = indexes[1:100]
+
+        # Find list of IDs
+    list_IDs_temp = [list_ID[k] for k in indexes]
+
+        # Generate data
+    X = np.empty((100, [512,512]), dtype=float)
+    Y = np.empty((100,[512,512] ), dtype=int)
+
+    for i, ID in enumerate(list_IDs_temp) :
+        X[i,] = np.load(ID)
+        Y[i,] = np.load(labels[ID]).astype(int)
+    return X,Y
 
 class DataGenerator(Seq):
 #class DataGenerator(keras.utils.all_utils.Sequence):
@@ -53,6 +69,7 @@ class DataGenerator(Seq):
 
     def data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples'
+        #print("STARTING DATA_GENERATION")
         # Initialization
         X = np.empty((self.batch_size, *self.dim), dtype=float)
         Y = np.empty((self.batch_size,  *self.dim), dtype=int)
@@ -65,6 +82,7 @@ class DataGenerator(Seq):
         list_of_non_null_tiles=[]
         nb_empty=0
         nb_full=0
+        mean=0
         for i in range(len(Y)):
             su=np.sum(Y[i,])
             if(su==0):
@@ -72,9 +90,12 @@ class DataGenerator(Seq):
             else:
                 #print(100.0*su/(512.0*512.0))
                 nb_full=nb_full+1
+                mean=mean+su
                 list_of_non_null_tiles.append(i)
-        print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
-        print("Thus, the dict stuff thing of indexes is")
+        mean=mean/(len(Y))
+        #print("\nHere we generate a new batch. Over the batch Y, of len "+str(nb_full)+", the mean value of the non null Y's is "+str(mean))
+        #print("And then we got : empty="+str(nb_empty)+" and full="+str(nb_full))
+        #print("Thus, the dict stuff thing of indexes is")
         X=X[list_of_non_null_tiles]
         Y=Y[list_of_non_null_tiles]
         return X, Y
@@ -88,7 +109,10 @@ def create_partition(n_img, time, tile_number,paths) :
     X_val =  []
     X_test = []
     Y_path = {}
-        
+
+    if(n_img<4):
+        print("EN PRISON !")
+        exit()    
     for i in range(1, n_img+1) : 
         for t in range(time) :
             for n in range(tile_number) :
@@ -102,8 +126,8 @@ def create_partition(n_img, time, tile_number,paths) :
                 path_to_x =  paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
                 path_to_y = paths['dataset_path']+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy'
                 
-                if (i)*tile_number*time+tile_number*t+n>=(n_img*time*tile_number)/2 : X_train.append(path_to_x)
-                elif (i)*tile_number*time+tile_number*t+n<=(n_img*time*tile_number)/4 : X_val.append(path_to_x)
+                if (i)>=(n_img)/2 : X_train.append(path_to_x)
+                elif (i)<=(n_img)/4 : X_val.append(path_to_x)
                 else : X_test.append(path_to_x)
                 Y_path.update({path_to_x : path_to_y})
 

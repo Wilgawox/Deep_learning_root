@@ -12,6 +12,7 @@ val_data_path : dataset_path+"data_validation/"
 test_data_path : dataset_path+"data_test/"
 MODEL_FILEPATH : "Data_Thibault/model.h5"
 final_data : "Data_Thibault/processed_data/"
+log_path : "/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/logs"
 
 # Parameters for the tiles
 tile_size : [512,512] #[x,y] dimensions of a tile
