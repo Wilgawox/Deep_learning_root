@@ -111,8 +111,11 @@ def create_partition(n_img, time, tile_number,paths) :
     Y_path = {}
 
     if(n_img<4):
-        print("EN PRISON !")
-        exit()    
+        print('Too few images') 
+    #    raise Exception(n_img)
+    #except Exception as e :
+    #    print('Too few images')
+
     for i in range(1, n_img+1) : 
         for t in range(time) :
             for n in range(tile_number) :

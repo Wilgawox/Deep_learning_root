@@ -7,16 +7,16 @@ print('START')
 
 #python cnn_dataset.py CNN_dataset --name OwO
 
+from xmlrpc.client import boolean
+import tensorflow as tf
+
 from numpy.random import seed
 seed(1)
-import tensorflow as tf
 tf.random.set_seed(1)
 
-#import paths as p # TODO : put this in a separate file with variables
 import ranging_and_tiling_helpers
 import custom_metrics_and_losses
 import dataset_creation
-print('imported local files')
 
 import os
 import numpy as np
@@ -26,15 +26,21 @@ import datetime
 import yaml
 import tensorflow.keras.layers as tfk
 from tensorflow.keras.models import Sequential
-#from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 import argparse
 from tensorflow.keras.callbacks import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
+print("Imports done")
 
 def CNN_dataset(args) : 
+    '''
+    CNN_dataset is used when you already created images files in your local repository, and need to train your dataset.
+
+    ## Prerequisites
+    '''
+
     #############################################################
     ####### Create partition of data and data generators ########
     #############################################################
@@ -61,15 +67,12 @@ def CNN_dataset(args) :
         paths = yaml.full_load(fp)
 
 
-
     params = {'dim': paths['tile_size'],
               'batch_size': paths['batch_size'],
               'n_channels' : paths['n_channels'],
               'n_classes': paths['n_classes'],
               'shuffle': True,
               'paths':paths}
-
-    print('Model generation')
 
     # Datasets
     path_to_X, path_to_Y = dataset_creation.create_partition(paths['n_img'], paths['n_time'], paths['n_tile'],paths)
@@ -108,34 +111,18 @@ def CNN_dataset(args) :
                             'accuracy'])
 
     # Setup of filepath for logs
-    #log_dir = "logs/"+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+str(paths['nExp'])
     log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
-    #os.system('tensorboard --logdir=' + log_dir)
+    os.system('tensorboard --logdir=' + log_dir)
     filepath = log_dir+"/model_"+args.name+".h5"
 
     # Other settings
     earlystopper = EarlyStopping(monitor="loss",patience=paths['patience'], verbose=1)
-
     checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, 
                                  save_best_only=True, mode='min')
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
     
-    print('training start')
 
-
-    #X_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_input_img00001.time1.number1.npy")
-    #Y_train=np.load("/home/rfernandez/Bureau/A_Test/DeepLearningRoot/Data_Thibault/data/ML1_result_img00001.time1.number1.npy")
-    #X = np.empty((10, 512,512), dtype=float)
-    #Y = np.empty((10,512,512 ), dtype=int)
-
-    #for i in range(10):
-    #    X[i,] = X_train
-    #    Y[i,] = Y_train
-        
-    ## Start of the training
-    #model.fit(X,Y, validation_split=0.33,
-    #        epochs=paths['n_epochs'], 
-    #        callbacks=[tensorboard_callback,earlystopper, checkpoint])
+    print('Beginning of model training')
 
 
     # Start of the training
@@ -150,12 +137,10 @@ def CNN_dataset(args) :
     model = load_model(filepath, custom_objects={'focal_loss':ranging_and_tiling_helpers.focal_loss})
     #model = load_model(filepath)
 
-    # Each tile will be read and the model will be applied. We then apply the filter bank and save the image
-    # This part is flawed since we use all our dataset and not just list_train. Well it'll do for now
-
+    # Each tile will be read and the model will be applied on the iimages the training did not learn on. We then apply the filter bank and save the image
     os.mkdir(log_dir+'/results/')
 
-    for img_num in range(1, paths['n_img']+1) :
+    for img_num in range(1, (paths['n_img']/2)+1) :
         if(img_num<10):strI="000"+str(img_num)
         else:
             if(img_num<100):strI="00"+str(img_num)
@@ -180,7 +165,7 @@ def CNN_dataset(args) :
         list_time = list_time*2-1
         list_time = ranging_and_tiling_helpers.filter_bank(list_time)
 
-        io.imsave(log_dir+'/results/ML1_Boite_img0'+str(strI)+'.tiff',list_time.astype(np.uint8))#, cmap='gray', vmin=0, vmax=paths['n_time'])
+        io.imsave(log_dir+'/results/ML1_Boite_img0'+str(strI)+'.tiff',list_time.astype(np.uint8))
    
 
 
@@ -195,9 +180,6 @@ if __name__ == "__main__":
             - Number of images loaded
             - Location of logs
             - Location of images
-
-    - Also need exeptions to work with those
-    - Need to load the image as a true mask btween 0 and 22 on 32 bit
     '''
 
     parser = argparse.ArgumentParser(description="DLR_CIRAD Model creator.")
@@ -205,7 +187,8 @@ if __name__ == "__main__":
 
     parser_cnnd = subparsers.add_parser('CNN_dataset', help='Compute the CNN')
     parser_cnnd.add_argument("--config", nargs="?", type=str, default="paths.yml", help="Configuration file")
-    parser_cnnd.set_defaults(func=CNN_dataset)
+    parser_cnnd.set_defaults(func=CNN_dataset) 
+    parser_cnnd.add_argument("--dev", nargs="?", type=bool, default=False, help="Developper mode")
     parser_cnnd.add_argument("--name", nargs="?", type=str, default="test", help="Model name (without .h5)")
 
     args = parser.parse_args()

@@ -29,12 +29,6 @@ def precision_custom(y_true, y_pred):
 def recall_custom(y_true, y_pred):
     return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fn(y_true, y_pred))
 
-#def precision_custom(y_true, y_pred):
-#    return (K.sum(K.round(y_true * apply_threshold(y_pred)))) / (  (K.sum(K.round(y_true * apply_threshold(y_pred)))) + (K.sum(K.cast(K.equal(K.round(apply_threshold(y_pred)) - y_true, 1), K.floatx()))))
-
-#def my_recall2(y_true, y_pred):
-#    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fn(y_true, y_pred))
-
 def bce_custom(y_true, y_pred, sample_weight=[1,1]):
     bce = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     print(y_true)

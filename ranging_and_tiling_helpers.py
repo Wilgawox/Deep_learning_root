@@ -1,8 +1,5 @@
-import string
 import numpy as np
-import paths
 import statistics
-import keras
 from keras import backend as K
 
 
@@ -156,32 +153,11 @@ def filter_bank(time_sequence):
     N_times=np.shape(time_sequence)[0]
 
     # The filter_bank is a list of signal models corresponding to apparition of a root, computed for each target time
-    filter_bank=np.array([[[[ (j*2-1) if(j<2) else (-1+2*int( i>(j-2)))  for j in range(N_times+1)] ] ] for i in range(N_times)] )  # F Y X T
+    filter_bank=np.array([[[[ (j*2-1) if(j<2) else (-1+2*int( i>(j-2)))  for j in range(N_times+1)] ] ] for i in range(N_times)] )
 
     # The broadcasted element-wise dotproduct sum(data-mult-bank filter) try all the filters of the bank for each pixel to estimate the likelihood 
     # of a root apparition at each target time. Then we use argmax function to select the index of the filter which gave the highest response
     return np.argmax(np.sum( np.multiply(time_sequence,filter_bank),axis=0),axis=2)
-
-
-## Alternative fonction to tiling, to complete if needed
-
-#def tiling_only_roots(img : np.array, final_size : tuple, stride) :
-#    #Slice img to tiles in final_size shape, and keep only the slices that have white pixel in it, not using most of the tiles without root in them
-#    # NOT YET TESTED
-#    img_w, img_h = img.shape
-#    tile_w, tile_h = final_size
-#    tiles=[]
-#    for i in np.arange(img_w, step=stride):
-#        for j in np.arange(img_h, step=stride):
-#            bloc = img[i:i+tile_w, j:j+tile_h]
-#            if np.max(bloc)>(paths.INT_ROOT+paths.INT_BG)/2 :
-#                if bloc.shape == (tile_w, tile_h):
-#                    tiles.append(bloc)
-#                else :
-#                    bloc_w, bloc_h = bloc.shape;
-#                    bloc = img[(i-(tile_w-bloc_w)):(i+tile_w), (j-(tile_h-bloc_h)):(j+tile_h)]
-#                    tiles.append(bloc)
-#    return tiles
 
 def focal_loss(target, output, gamma=50):
     print(target, output)
@@ -190,10 +166,10 @@ def focal_loss(target, output, gamma=50):
     output = K.clip(output, eps, 1. - eps)
     return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
 
-#def weighted_categorical_crossentropy(weights):
-#    def wcce(y_true, y_pred):
-#        Kweights = K.constant(weights)
-#        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
-#        y_true = K.cast(y_true, y_pred.dtype)
-#        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
-#    return wcce
+def weighted_categorical_crossentropy(weights):
+    def wcce(y_true, y_pred):
+        Kweights = K.constant(weights)
+        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
+        y_true = K.cast(y_true, y_pred.dtype)
+        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
+    return wcce

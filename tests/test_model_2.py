@@ -76,8 +76,3 @@ plt.imshow(test_expected, cmap='gray', vmin=0, vmax=1)
 plt.title('Result we want', fontsize=14)
 
 plt.show()
-'''
-for time_num in range(paths.n_time) :
-        for tile_num in range(paths.n_tile):
-
-prediction = model.predict(X_tile)'''
