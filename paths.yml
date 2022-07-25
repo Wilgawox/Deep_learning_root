@@ -4,15 +4,10 @@
 
 
 # Data paths
-training_data : "Data_Thibault/input/"
-res_data : "Data_Thibault/results/"
-dataset_path : "Data_Thibault/data/"
-training_data_path : dataset_path+"data_training/"
-val_data_path : dataset_path+"data_validation/"
-test_data_path : dataset_path+"data_test/"
-MODEL_FILEPATH : "Data_Thibault/model.h5"
-final_data : "Data_Thibault/processed_data/"
-log_path : "/logs"
+training_data : "Data_Thibault/input/" # Paths to the training images
+res_data : "Data_Thibault/results/" # Path to the annotated images
+dataset_path : "Data_Thibault/data/" # Paths to the folder where the dataset will be created
+log_path : "/logs" # Path to logs directory, where the model.h5 and tensorboard information will be stocked
 
 # Parameters for the tiles
 tile_size : [512,512] #[x,y] dimensions of a tile
@@ -21,25 +16,26 @@ int_root : -1 #Target value of a root pixel
 int_bg : 1 #Target value of a backgroung pixel
 
 # Parameters for the CNN :
-percent_train: 50 # Part of image for training (%) Default : 50
-percent_valid : 25 # Part of image for validation (%) Default : 25
-percent_test : 25 # Part of image for test (%) Default : 25
-sample_weight : 60 # Weight given for a pixel associated with a root
-patience : 10 # Nomber of unsuccessful epochs before the training stops
+percent_train: 50 # Part of image in the training dataset(%) Default : 50%
+percent_valid : 25 # Part of image in the validation dataset(%) Default : 25%
+percent_test : 25 # Part of image in the test dataset (%) Default : 25%
+sample_weight : 60 # Weight for a pixel considered as root pixel
+patience : 10 # Nomber of consecutives unsuccessful epochs (no loss diminutions) before the training stops
 n_epochs : 30 # Total number of epochs
 batch_size : 16 # Batch size
-validation_split : 0.1
-n_kernels : 8
-n_channels : 1
-n_classes : 2 #softmax #Root or background
+n_kernels : 8 # Number of kernels of the first layer when you train your model (make it bigger for better results but longer computing time)
+n_channels : 1 # Number of channel in the images (one for grayscale images)
+n_classes : 2 # Number of classes. Here there is two : root and background
 learning_rate : 0.01
+validation_split : 0.1 
 kernel_initializer : 'he_normal'
 kernel_size : [3, 3]
 
 ##n_test_images : 0 #Calcul a faire avant execution
 
 # Test parameters for main :
-n_img : 36 # Number of images processed by the training
+n_img : 36 # Number of images used by the training dataset
 n_time : 22 # Number of time slices used in each image
-n_tile : 9 # Number of tiles processed (TODO : always set it to max)
-nExp : "default_test" # Name of the current experiment
+# TODO : Use maths to calculate n_tile
+n_tile : 9 # Number of tiles processed
+nExp : "default_test" # Default name of the model.h5 (names can be specified with --name)

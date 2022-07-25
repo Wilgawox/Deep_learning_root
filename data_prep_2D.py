@@ -2,37 +2,19 @@
 import numpy as np
 import ranging_and_tiling_helpers
 import os
-#import paths
-
-
-def data_arborescence_setup_splitter(list_X, list_Y,paths) :
-    #Function not working anymore, keeping it here for now if I need it later on
-    # Process and save the images, putting them in different folders to serve differents puposes
-   for i in range(0, len(list_X)) :
-        for j in range(len(list_X[i])):
-            tilesX = ranging_and_tiling_helpers.data_range_and_tile(list_X[i][j], paths.INT_ROOT, paths.INT_BG, paths.TILE_SIZE, paths.STRIDE)
-            tilesY = ranging_and_tiling_helpers.tiling(list_Y[i][j], paths.TILE_SIZE, paths.STRIDE)
-            if len(tilesX)!=len(tilesY) :
-                # Check for different size tiles, which would be a big problem later on
-                raise Exception('Problem while cutting tiles', 'Different number of tiles')
-            for k in range(len(tilesX)):
-                if i<=len(list_X)//2 :
-                    #We put 50% of images in training ...
-                    np.save((paths.training_data_path+'input/ML1_input_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesX[k])
-                    np.save((paths.training_data_path+'results/ML1_result_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesY[k])
-                elif i>3*len(list_X)//4 :
-                    #... then 25% of images in test ...
-                    np.save((paths.test_data_path+'input/ML1_input_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesX[k])
-                    np.save((paths.test_data_path+'results/ML1_result_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesY[k])
-                else :
-                    #... and the last 25% in validation
-                    np.save((paths.val_data_path+'input/ML1_input_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesX[k])
-                    np.save((paths.val_data_path+'results/ML1_result_img'+str(i)+'.time'+str(j)+'.number'+str(k)), tilesY[k])
-
-
 
 def data_arborescence_setup(list_X, list_Y,paths) : 
-    # Save X and Y as .npy in the dataset path, tiled and ranged
+    '''
+    Create files in the local folder (specified in the YAML file in argument)
+
+    Parameters : 
+    ------------
+
+    list_X : 
+    list_Y : 
+    paths : 
+    '''
+
     if(not os.path.exists(paths['dataset_path'])) : os.mkdir(paths['dataset_path'])
     for i in range(1, len(list_X)+1) :
         print(i)

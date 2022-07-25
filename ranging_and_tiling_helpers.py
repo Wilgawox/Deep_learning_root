@@ -59,9 +59,10 @@ def tiling(img, final_size : tuple, stride) :
     return tiles
 
 def img_tile_and_range(img : np.array, intensity_bg, intensity_root, tile_size : tuple, stride : int) : 
-        img = reduced_centered_range(img, intensity_bg, intensity_root)
-        tiles = tiling(img, tile_size, stride)
-        return tiles
+    # Combination of the two fonctions of tiling and ranging
+    img = reduced_centered_range(img, intensity_bg, intensity_root)
+    tiles = tiling(img, tile_size, stride)
+    return tiles
 
 
 def reverse_tiling(img_size, tiles, stride) :    
@@ -112,8 +113,10 @@ def reverse_tiling(img_size, tiles, stride) :
 
 
 def sanitised_input(prompt, type_=None, min_=None, max_=None, range_=None):
-    #Fonction stolen at https://stackoverflow.com/questions/23294658/asking-the-user-for-input-until-they-give-a-valid-response
-    # Help getting an int when the user input something in main
+    #Fonction found at https://stackoverflow.com/questions/23294658/asking-the-user-for-input-until-they-give-a-valid-response
+    '''
+    Ask the user to type a certain type of input, and verify that the input is the right type and its value range between min_ and max_
+    '''
     if min_ is not None and max_ is not None and max_ < min_:
         raise ValueError("min_ must be less than or equal to max_.")
     while True:
@@ -159,7 +162,9 @@ def filter_bank(time_sequence):
     # of a root apparition at each target time. Then we use argmax function to select the index of the filter which gave the highest response
     return np.argmax(np.sum( np.multiply(time_sequence,filter_bank),axis=0),axis=2)
 
+
 def focal_loss(target, output, gamma=50):
+    # Definition of focal loss
     print(target, output)
     output /= K.sum(output, axis=-1, keepdims=True)
     eps = K.epsilon()
@@ -167,6 +172,7 @@ def focal_loss(target, output, gamma=50):
     return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
 
 def weighted_categorical_crossentropy(weights):
+    # Definition of weighted categorical crossentropy
     def wcce(y_true, y_pred):
         Kweights = K.constant(weights)
         if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
