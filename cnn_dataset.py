@@ -16,6 +16,7 @@ tf.random.set_seed(1)
 import ranging_and_tiling_helpers
 import custom_metrics_and_losses
 import dataset_creation
+import model_utils
 
 import os
 import numpy as np
@@ -81,7 +82,7 @@ def CNN_dataset(args) :
     training_generator = dataset_creation.DataGenerator(partition['train'], results, **params)
     validation_generator = dataset_creation.DataGenerator(partition['val'], results, **params)
 
-    model = Sequential()
+    #model = Sequential()
 
     '''
     # Creation of the layers of the CNN
@@ -96,25 +97,20 @@ def CNN_dataset(args) :
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     '''
 
-    # Creation of layers using Resnet
-    def resnet() :
-        input_ = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
-        inputs=input_
+   # Setup of filepath for logs
+    log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
+    filepath = log_dir+"/model_"+args.name+".h5"
+
+    # Other settings
+    earlystopper = EarlyStopping(monitor="loss",patience=paths['patience'], verbose=1)
+    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, 
+                                 save_best_only=True, mode='min')
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+    
 
 
-        inputs_shortcut=inputs
-        convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], padding='same', kernel_initializer=paths['kernel_initializer'])(inputs)
-        convo=tfk.BatchNormalization(axis=3)(convo)
-        convo=tfk.Activation(activation=paths['activation'])(convo)
-        convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
-        convo=tfk.BatchNormalization(axis=3)(convo)
-        convo=tfk.Add()([inputs_shortcut,convo])
-
-
-        outputs = tfk.Conv2D(1, kernel_size=1, padding='same',activation = 'sigmoid')(convo)
-        return(input_, outputs)
-
-    inputs, outputs = resnet()
+    depth_resnet=10
+    inputs, outputs = model_utils.resnet(paths,depth_resnet)
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     print(model.summary())
 
@@ -126,17 +122,7 @@ def CNN_dataset(args) :
                             custom_metrics_and_losses.precision_custom,
                             'accuracy'])
 
-    # Setup of filepath for logs
-    log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
-    filepath = log_dir+"/model_"+args.name+".h5"
-
-    # Other settings
-    earlystopper = EarlyStopping(monitor="loss",patience=paths['patience'], verbose=1)
-    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, 
-                                 save_best_only=True, mode='min')
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    
-
+ 
     print('Beginning of model training')
 
 
