@@ -24,10 +24,10 @@ def neg_custom(y_true, y_pred):
     return K.sum(K.round(1-y_true))
 
 def precision_custom(y_true, y_pred):
-    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fp(y_true, y_pred))
+    return tp_custom(y_true, y_pred) / (tp_custom(y_true, y_pred) + fp_custom(y_true, y_pred))
 
 def recall_custom(y_true, y_pred):
-    return my_tp(y_true, y_pred) / (my_tp(y_true, y_pred) + my_fn(y_true, y_pred))
+    return tp_custom(y_true, y_pred) / (tp_custom(y_true, y_pred) + fn_custom(y_true, y_pred))
 
 def bce_custom(y_true, y_pred, sample_weight=[1,1]):
     bce = tf.keras.losses.BinaryCrossentropy(from_logits=False)

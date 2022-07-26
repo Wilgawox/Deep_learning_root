@@ -26,6 +26,7 @@ batch_size : 16 # Batch size
 n_kernels : 8 # Number of kernels of the first layer when you train your model (make it bigger for better results but longer computing time)
 n_channels : 1 # Number of channel in the images (one for grayscale images)
 n_classes : 2 # Number of classes. Here there is two : root and background
+activation : 'sigmoid'
 learning_rate : 0.01
 validation_split : 0.1 
 kernel_initializer : 'he_normal'

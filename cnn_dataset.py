@@ -7,7 +7,6 @@ print('START')
 
 #python cnn_dataset.py CNN_dataset --name OwO
 
-from xmlrpc.client import boolean
 import tensorflow as tf
 
 from numpy.random import seed
@@ -20,7 +19,6 @@ import dataset_creation
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 from skimage import io
 import datetime
 import yaml
@@ -58,7 +56,7 @@ def CNN_dataset(args) :
     ### /| DAVE    (\  |(           '---''(_/--'  `-'\_)      ###
     ###^ \   /___\  /\ |                                      ###
     ###   |__|   |__|-"                                       ###
-    #############################################################                                                   
+    #############################################################                                           
 
 
     print('Here we go !')
@@ -85,7 +83,7 @@ def CNN_dataset(args) :
 
     model = Sequential()
 
-    
+    '''
     # Creation of the layers of the CNN
 
     inputs = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
@@ -96,23 +94,40 @@ def CNN_dataset(args) :
     convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
     outputs = tfk.Conv2D(1, kernel_size=paths['kernel_size'], padding='same',activation = 'sigmoid')(convo)
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
+    '''
+
+    # Creation of layers using Resnet
+    def resnet() :
+        input_ = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
+        inputs=input_
+
+
+        inputs_shortcut=inputs
+        convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], padding='same', kernel_initializer=paths['kernel_initializer'])(inputs)
+        convo=tfk.BatchNormalization(axis=3)(convo)
+        convo=tfk.Activation(activation=paths['activation'])(convo)
+        convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
+        convo=tfk.BatchNormalization(axis=3)(convo)
+        convo=tfk.Add()([inputs_shortcut,convo])
+
+
+        outputs = tfk.Conv2D(1, kernel_size=1, padding='same',activation = 'sigmoid')(convo)
+        return(input_, outputs)
+
+    inputs, outputs = resnet()
+    model = tf.keras.Model(inputs = inputs, outputs = outputs)
+    print(model.summary())
 
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
-                    #loss='binary_crossentropy',
+                    loss='binary_crossentropy',
                     #loss = ranging_and_tiling_helpers.focal_loss,
-                    loss = custom_metrics_and_losses.bce_custom,
-                    metrics=[ custom_metrics_and_losses.tp_custom,
-                            custom_metrics_and_losses.tn_custom,
-                            custom_metrics_and_losses.fp_custom,
-                            custom_metrics_and_losses.fn_custom,
-                            custom_metrics_and_losses.recall_custom,
+                    #loss = custom_metrics_and_losses.bce_custom,
+                    metrics=[ custom_metrics_and_losses.recall_custom,
                             custom_metrics_and_losses.precision_custom,
-                            'mae', 
                             'accuracy'])
 
     # Setup of filepath for logs
     log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
-    os.system('tensorboard --logdir=' + log_dir)
     filepath = log_dir+"/model_"+args.name+".h5"
 
     # Other settings
