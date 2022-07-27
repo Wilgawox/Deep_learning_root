@@ -94,13 +94,11 @@ def CNN_dataset(args) :
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
     
 
-
-    depth_resnet=5
-    inputs, outputs = model_utils.resnet(paths,depth_resnet)
+    inputs, outputs = model_utils.resnet(paths,paths['depth_resnet'])
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     #print(model.summary())
 
-    model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=paths['learning_rate']),
                     loss='binary_crossentropy',
                     #loss = ranging_and_tiling_helpers.focal_loss,
                     #loss = custom_metrics_and_losses.bce_custom,

@@ -7,7 +7,7 @@
 training_data : "Data_Thibault/input/" # Paths to the training images
 res_data : "Data_Thibault/results/" # Path to the annotated images
 dataset_path : "Data_Thibault/data/" # Paths to the folder where the dataset will be created
-log_path : "/logs" # Path to logs directory, where the model.h5 and tensorboard information will be stocked
+log_path : "logs" # Path to logs directory, where the model.h5 and tensorboard information will be stocked
 
 # Parameters for the tiles
 tile_size : [512,512] #[x,y] dimensions of a tile
@@ -28,8 +28,10 @@ n_channels : 1 # Number of channel in the images (one for grayscale images)
 n_classes : 2 # Number of classes. Here there is two : root and background
 depth_resnet : 10 # Number of layers of resnet system
 activation : 'sigmoid'
+#optimizer : The optimizer is hard to put here so we need to change it directly in the code
+depth_resnet : 70
 learning_rate : 0.1
-validation_split : 0.1 
+validation_split : 0.1
 kernel_initializer : 'he_normal'
 kernel_size : [3, 3]
 
