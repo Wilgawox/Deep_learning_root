@@ -24,7 +24,6 @@ from skimage import io
 import datetime
 import yaml
 import tensorflow.keras.layers as tfk
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 import argparse
 from tensorflow.keras.callbacks import *
@@ -82,22 +81,9 @@ def CNN_dataset(args) :
     training_generator = dataset_creation.DataGenerator(partition['train'], results, **params)
     validation_generator = dataset_creation.DataGenerator(partition['val'], results, **params)
 
-    #model = Sequential()
 
-    '''
-    # Creation of the layers of the CNN
 
-    inputs = tfk.Input(shape=(paths['tile_size'][0], paths['tile_size'][1], 1)) 
-    convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(inputs)
-    convo = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo) 
-    convo = tfk.Conv2D(paths['n_kernels']*2*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
-    convo = tfk.Conv2D(paths['n_kernels']*2 , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo) 
-    convo = tfk.Conv2D(paths['n_kernels'] , kernel_size=paths['kernel_size'], activation='sigmoid', padding='same', kernel_initializer=paths['kernel_initializer'])(convo)
-    outputs = tfk.Conv2D(1, kernel_size=paths['kernel_size'], padding='same',activation = 'sigmoid')(convo)
-    model = tf.keras.Model(inputs = inputs, outputs = outputs)
-    '''
-
-   # Setup of filepath for logs
+    # Setup of filepath for logs
     log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
     filepath = log_dir+"/model_"+args.name+".h5"
 
@@ -109,10 +95,10 @@ def CNN_dataset(args) :
     
 
 
-    depth_resnet=10
+    depth_resnet=5
     inputs, outputs = model_utils.resnet(paths,depth_resnet)
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
-    print(model.summary())
+    #print(model.summary())
 
     model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=paths['learning_rate']),
                     loss='binary_crossentropy',
@@ -135,7 +121,7 @@ def CNN_dataset(args) :
     print('Test done. Model is at : ', filepath)
     print('Now writing result images in logs/',log_dir,'/results/')
     
-    model = load_model(filepath, custom_objects={'focal_loss':ranging_and_tiling_helpers.focal_loss})
+    model = load_model(filepath, custom_objects=paths['custom_obj'])
     #model = load_model(filepath)
 
     # Each tile will be read and the model will be applied on the iimages the training did not learn on. We then apply the filter bank and save the image

@@ -2,8 +2,6 @@ print('START')
 
 #tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
 
-import paths # TODO : put this in a separate file with variables
-import ranging_and_tiling_helpers
 
 print('imported local files')
 

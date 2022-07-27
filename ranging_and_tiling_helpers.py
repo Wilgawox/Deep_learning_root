@@ -161,21 +161,3 @@ def filter_bank(time_sequence):
     # The broadcasted element-wise dotproduct sum(data-mult-bank filter) try all the filters of the bank for each pixel to estimate the likelihood 
     # of a root apparition at each target time. Then we use argmax function to select the index of the filter which gave the highest response
     return np.argmax(np.sum( np.multiply(time_sequence,filter_bank),axis=0),axis=2)
-
-
-def focal_loss(target, output, gamma=50):
-    # Definition of focal loss
-    print(target, output)
-    output /= K.sum(output, axis=-1, keepdims=True)
-    eps = K.epsilon()
-    output = K.clip(output, eps, 1. - eps)
-    return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
-
-def weighted_categorical_crossentropy(weights):
-    # Definition of weighted categorical crossentropy
-    def wcce(y_true, y_pred):
-        Kweights = K.constant(weights)
-        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
-        y_true = K.cast(y_true, y_pred.dtype)
-        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
-    return wcce

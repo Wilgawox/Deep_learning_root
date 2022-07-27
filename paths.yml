@@ -21,13 +21,14 @@ percent_valid : 25 # Part of image in the validation dataset(%) Default : 25%
 percent_test : 25 # Part of image in the test dataset (%) Default : 25%
 sample_weight : 60 # Weight for a pixel considered as root pixel
 patience : 10 # Nomber of consecutives unsuccessful epochs (no loss diminutions) before the training stops
-n_epochs : 30 # Total number of epochs
+n_epochs : 50 # Total number of epochs
 batch_size : 16 # Batch size
 n_kernels : 8 # Number of kernels of the first layer when you train your model (make it bigger for better results but longer computing time)
 n_channels : 1 # Number of channel in the images (one for grayscale images)
 n_classes : 2 # Number of classes. Here there is two : root and background
+depth_resnet : 10 # Number of layers of resnet system
 activation : 'sigmoid'
-learning_rate : 0.01
+learning_rate : 0.1
 validation_split : 0.1 
 kernel_initializer : 'he_normal'
 kernel_size : [3, 3]
@@ -40,3 +41,12 @@ n_time : 22 # Number of time slices used in each image
 # TODO : Use maths to calculate n_tile
 n_tile : 9 # Number of tiles processed
 nExp : "default_test" # Default name of the model.h5 (names can be specified with --name)
+
+# Custom functions for model.load : 
+custom_obj : {'focal_loss':custom_metrics_and_losses.focal_loss,
+             'precision':custom_metrics_and_losses.precision_custom,
+             'recall':custom_metrics_and_losses.recall_custom, 
+             'bce':custom_metrics_and_losses.bce_custom, 
+             'f1':custom_metrics_and_losses.f1, 
+             'f1_loss':custom_metrics_and_losses.f1_loss, 
+             'wcce':custom_metrics_and_losses.weighted_categorical_crossentropy}

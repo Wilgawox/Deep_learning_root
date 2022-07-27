@@ -32,7 +32,7 @@ def recall_custom(y_true, y_pred):
 def bce_custom(y_true, y_pred, sample_weight=[1,1]):
     bce = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     print(y_true)
-#    return bce(y_true, y_pred)
+#return bce(y_true, y_pred)
     output=tf.convert_to_tensor(y_pred)
     epsilon_=tf.constant(K.epsilon(), output.dtype.base_dtype)
     output = tf.clip_by_value(output, epsilon_, 1. - epsilon_)
@@ -43,3 +43,42 @@ def bce_custom(y_true, y_pred, sample_weight=[1,1]):
     bce += K.cast(sample_weight[0],K.floatx()) * K.cast(1 - target,K.floatx()) * K.cast(tf.math.log(1 - output + K.epsilon()),K.floatx())
     return -bce
 
+
+def focal_loss(target, output, gamma=50):
+    # Definition of focal loss
+    print(target, output)
+    output /= K.sum(output, axis=-1, keepdims=True)
+    eps = K.epsilon()
+    output = K.clip(output, eps, 1. - eps)
+    return -K.sum(K.pow(1. - output, gamma) * target * K.log(output), axis=-1)
+
+
+def weighted_categorical_crossentropy(weights):
+    # Definition of weighted categorical crossentropy
+    def wcce(y_true, y_pred):
+        Kweights = K.constant(weights)
+        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
+        y_true = K.cast(y_true, y_pred.dtype)
+        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
+    return wcce
+
+def f1(y_true, y_pred):
+    y_pred = K.round(y_pred)
+    tp = K.sum(K.cast(y_true,K.floatx())*K.cast(y_pred,K.floatx()), axis=0)
+    fp = K.sum(K.cast((1-y_true),K.floatx())*K.cast(y_pred,K.floatx()), axis=0)
+    fn = K.sum(K.cast(y_true,K.floatx())*K.cast((1-y_pred),K.floatx()), axis=0)
+    p = tp / (tp + fp + K.epsilon())
+    r = tp / (tp + fn + K.epsilon())
+    f1 = 2*p*r / (p+r+K.epsilon())
+    f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
+    return K.mean(f1)
+
+def f1_loss(y_true, y_pred):
+    tp = K.sum(K.cast(y_true,K.floatx())*K.cast(y_pred,K.floatx()), axis=0)
+    fp = K.sum(K.cast((1-y_true),K.floatx())*K.cast(y_pred,K.floatx()), axis=0)
+    fn = K.sum(K.cast(y_true,K.floatx())*K.cast((1-y_pred),K.floatx()), axis=0)
+    p = tp / (tp + fp + K.epsilon())
+    r = tp / (tp + fn + K.epsilon())
+    f1 = 2*p*r / (p+r+K.epsilon())
+    f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
+    return 1 - K.mean(f1)
