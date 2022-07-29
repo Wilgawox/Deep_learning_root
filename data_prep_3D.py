@@ -1,9 +1,9 @@
-#import imageio as iio
-#import cv2
 import numpy as np
 from PIL import ImageSequence
 
+
 def create_Xarray(img_2Dt) : 
+    # Create an array a sliced image
     X=[]
     for y in ImageSequence.Iterator(img_2Dt):
         X.append(np.array(y))
@@ -11,6 +11,7 @@ def create_Xarray(img_2Dt) :
 
 
 def create_Yarray(img_2D) : 
+    #Create an array of the root growing as time pass
     img_2D=np.array(img_2D)
     Y=[]
     for t in range(1,int(np.max(img_2D)+1)) :
@@ -24,7 +25,7 @@ def create_Yarray(img_2D) :
     return Y
 
 def create_Yarray_speedy(img_2D) :
-    #Create an array of the root growing as time pass
+    #Create an array of the root growing as time pass while reducing FOR loops
     img_2D=np.array(img_2D)
     Y=[]
     for t in range(1,int(np.max(img_2D)+1)) :

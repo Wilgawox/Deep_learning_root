@@ -1,4 +1,3 @@
-#Imports
 from glob import glob
 import numpy as np
 from keras.callbacks import *
@@ -35,8 +34,8 @@ def create_IO_for_CNN_training(n_img, time, n_tile) :
                     else :
                         if(i<1000) : strI="0"+str(i)
                         else : strI=""+str(i)
-                a = np.load(paths.dataset_path+'ML1_input_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy')
-                b = np.load(paths.dataset_path+'ML1_result_img0'+strI+'.time'+str(t+1)+'.number'+str(n+1)+'.npy')
+                a = np.load(paths.dataset_path+'ML1_input_img0'+strI+'_time'+str(t+1)+'_number'+str(n+1)+'.npy')
+                b = np.load(paths.dataset_path+'ML1_result_img0'+strI+'_time'+str(t+1)+'_number'+str(n+1)+'.npy')
                 X.append(a)
                 Y.append(b)
     return X, Y

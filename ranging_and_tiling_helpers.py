@@ -1,6 +1,5 @@
 import numpy as np
 import statistics
-from keras import backend as K
 
 
 

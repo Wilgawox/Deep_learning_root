@@ -1,9 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-# Input  : a np.array( dim_X, dim_Y, dim_T) with float values indicating probability of background (values near -1) or root (values near 1)
-# Output : a np.array( dim_X, dim_Y ) with integer values indicating for each pixel (x,y) the root apparition time from 1 to max_time, or zero if no_root
+
 def compute_apparition_time_from_2d_time_sequence_by_ramp_model(time_sequence):
+    # Input  : a np.array( dim_X, dim_Y, dim_T) with float values indicating probability of background (values near -1) or root (values near 1)
+    # Output : a np.array( dim_X, dim_Y ) with integer values indicating for each pixel (x,y) the root apparition time from 1 to max_time, or zero if no_root
     N_times=np.shape(time_sequence)[0]
 
     # The filter_bank is a list of signal models corresponding to apparition of a root, computed for each target time
@@ -18,9 +18,10 @@ def compute_apparition_time_from_2d_time_sequence_by_ramp_model(time_sequence):
 
 
 
-# Input  : a np.array( dim_X, dim_Y, dim_T) with float values indicating probability of background (values near -1) or root (values near 1)
-# Output : a np.array( dim_X, dim_Y ) with integer values indicating for each pixel (x,y) the root apparition time from 1 to max_time, or zero if no_root
+
 def compute_apparition_time_from_2d_time_sequence_by_mean_shift(time_sequence,alpha,test=False,testx=-1,testy=-1):
+    # Input  : a np.array( dim_X, dim_Y, dim_T) with float values indicating probability of background (values near -1) or root (values near 1)
+    # Output : a np.array( dim_X, dim_Y ) with integer values indicating for each pixel (x,y) the root apparition time from 1 to max_time, or zero if no_root
     N_times=np.shape(time_sequence)[0]
 
     # The filter_bank is a list of signal models corresponding to apparition of a root, computed for each target time
@@ -41,8 +42,8 @@ def compute_apparition_time_from_2d_time_sequence_by_mean_shift(time_sequence,al
     ret=np.multiply(ar,sel)
     return ret
 
-# Test of the function on a simple root growing downwards on the third column of the hypermatrix
 def test_filter_bank_ramp():
+    # Test of the function on a simple root growing downwards on the third column of the hypermatrix
     N_times=5
     data=np.array([[[[ 1 if (col==2 and lig<=tim) else -1 ] for col in range(N_times+2)] for lig in range(N_times+3)] for tim in range(N_times)] )
     print("Data provided : "+str(np.shape(data)))
@@ -50,8 +51,8 @@ def test_filter_bank_ramp():
     print("Result should show a root growing to the south")
     print(data2d)
 
-# Test of the function on a simple root growing downwards on the third column of the hypermatrix
 def test_filter_bank_mean_shift():
+    # Test of the function on a simple root growing downwards on the third column of the hypermatrix
     N_times=5
     data=np.array([[[[ 1 if (col==2 and lig<=tim) else -1 ] for col in range(N_times+2)] for lig in range(N_times+3)] for tim in range(N_times)] )
     print("Data provided : "+str(np.shape(data)))

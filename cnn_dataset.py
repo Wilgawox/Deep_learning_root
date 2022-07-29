@@ -3,15 +3,9 @@ print('START')
 
 # Dataset creation based on : https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
 
-#tensorboard --logdir Documents/CIRAD_stage_2022/Deep_learning_root/logs
-
-#python cnn_dataset.py CNN_dataset --name OwO
+#python cnn_dataset.py CNN_dataset --name name
 
 import tensorflow as tf
-
-from numpy.random import seed
-seed(1)
-tf.random.set_seed(1)
 
 import ranging_and_tiling_helpers
 import custom_metrics_and_losses
@@ -84,8 +78,8 @@ def CNN_dataset(args) :
 
 
     # Setup of filepath for logs
-    log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+args.name
-    filepath = log_dir+"/model_"+args.name+".h5"
+    log_dir = paths['log_path']+ datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+'_'+args.name
+    filepath = log_dir+args.name+".h5"
 
     # Other settings
     earlystopper = EarlyStopping(monitor="loss",patience=paths['patience'], verbose=1)
@@ -99,15 +93,11 @@ def CNN_dataset(args) :
     #print(model.summary())
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=paths['learning_rate']),
-                    loss='binary_crossentropy',
-                    #loss = ranging_and_tiling_helpers.focal_loss,
-                    #loss = custom_metrics_and_losses.bce_custom,
+                    #loss='binary_crossentropy',
+                    loss = ranging_and_tiling_helpers.f1_loss,
                     metrics=[ custom_metrics_and_losses.recall_custom,
                             custom_metrics_and_losses.precision_custom,
                             'accuracy'])
-
- 
-    print('Beginning of model training')
 
 
     # Start of the training
@@ -137,7 +127,7 @@ def CNN_dataset(args) :
         list_tiles = []
         for time_num in range(paths['n_time']) :
             for tile_num in range(paths['n_tile']):
-                tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'.time'+str(time_num+1)+'.number'+str(tile_num+1)+'.npy')
+                tile = np.load(paths['dataset_path']+'ML1_input_img0'+strI+'_time'+str(time_num+1)+'_number'+str(tile_num+1)+'.npy')
                 list_tiles.append(tile)
 
             list_tiles = np.array(list_tiles)

@@ -26,6 +26,7 @@ def create_files(args) :
 
     for i in range(1,paths['n_img']+1) :
 
+        # Creation of filename (e.g. : 'ML1_Boite_00015.tif')
         if(i<10):strI="000"+str(i)
         else:
             if(i<100):strI="00"+str(i)
@@ -34,15 +35,20 @@ def create_files(args) :
                 else:
                     strI=""+str(i)
         filenameX=paths['training_data']+'ML1_Boite_0'+strI+'.tif'
+        
+        # Import the image
         imX=Image.open(filenameX)
+        
+        # Add the right file to list_X
         list_X.append(data_prep_3D.create_Xarray(imX))
 
+        # Same process for list_Y
         filenameY=paths['res_data']+'ML1_Boite_0'+strI+'.tif'
         imY=Image.open(filenameY)
         list_Y.append(data_prep_3D.create_Yarray_speedy(imY))
 
-    #print(list_X, list_Y)
     data_prep_2D.data_arborescence_setup(list_X, list_Y,paths)
+
     # Free memory
     del(list_X)
     del(list_Y)
