@@ -35,7 +35,6 @@ validation_split : 0.1
 kernel_initializer : 'he_normal'
 kernel_size : [3, 3]
 
-##n_test_images : 0 #Calcul a faire avant execution
 
 # Test parameters for main :
 n_img : 36 # Number of images used by the training dataset

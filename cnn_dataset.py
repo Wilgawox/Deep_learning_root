@@ -29,8 +29,6 @@ print("Imports done")
 def CNN_dataset(args) : 
     '''
     CNN_dataset is used when you already created images files in your local repository, and need to train your dataset.
-
-    ## Prerequisites
     '''
 
     #############################################################
@@ -90,10 +88,9 @@ def CNN_dataset(args) :
 
     inputs, outputs = model_utils.resnet(paths,paths['depth_resnet'])
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
-    #print(model.summary())
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=paths['learning_rate']),
-                    #loss='binary_crossentropy',
+                    # loss ='binary_crossentropy',
                     loss = ranging_and_tiling_helpers.f1_loss,
                     metrics=[ custom_metrics_and_losses.recall_custom,
                             custom_metrics_and_losses.precision_custom,
@@ -110,7 +107,7 @@ def CNN_dataset(args) :
     print('Now writing result images in logs/',log_dir,'/results/')
     
     model = load_model(filepath, custom_objects=paths['custom_obj'])
-    #model = load_model(filepath)
+
 
     # Each tile will be read and the model will be applied on the iimages the training did not learn on. We then apply the filter bank and save the image
     os.mkdir(log_dir+'/results/')
@@ -178,7 +175,7 @@ if hasattr(args, 'func'):
     ###     .'                                `-.              ###
     ###   .'                         _           \             ###
     ###  /                         .'        .    \   _._      ###
-    ### :          Gros Louis      :          :`*.  :-'.' ;    ###
+    ### :          Big Louis      :          :`*.  :-'.' ;     ###
     ### ;    `                    ;          `.) \   /.-'      ###
     ### :     `                             ; ' -*   ;         ###
     ###        :.    \           :       :  :        :         ###
@@ -187,7 +184,7 @@ if hasattr(args, 'func'):
     ###  |    :     /`-.           `.    \/`.'  _    `.        ###
     ###  :    ;    :    `*-.__.-*""":`.   \ ;  'o` `. /        ###
     ###        ;   ;                ;  \   ;:       ;:   ,/    ###
-    ###   |  | |                       /`  | ,      `*-*'/     ###
+    ###   |    |                       /`  | ,      `*-*'/     ###
     ###   `  : :  :                /  /    | : .    ._.-'      ###
     ###    \  \ ,  \              :   `.   :  \ \   .'         ###
     ###     :  *:   ;             :    |`*-'   `*+-*           ###
